@@ -1,0 +1,18 @@
+{
+  "name": "teamon-operator",
+  "version": "0.2.4",
+  "description": "Локальные инструменты и пульт оператора TeamON. Подключения к компаниям настраиваются отдельно.",
+  "author": {
+    "name": "TeamON"
+  },
+  "interface": {
+    "displayName": "TeamON Operator",
+    "shortDescription": "Компании, агенты и контекст в вашем Codex.",
+    "longDescription": "Рабочее место оператора: просмотр диалогов и контекста, помощь и настройка через штатные API компании. Требуется Node 24.15+ (ветка 24) и отдельно выданный доступ к компании. Не устанавливает и не обновляет Core.",
+    "developerName": "TeamON",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": ["Открой TeamON Operator в этом чате. Пока только чтение."]
+  },
+  "mcpServers": "./.mcp.json"
+}
