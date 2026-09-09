@@ -1,18 +1,15 @@
-import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import packageInfo from '../package.json' with { type: 'json' };
-import { OPERATOR_UI_HTML } from './operator-ui.mjs';
 
-export const ACTIVE_BUILD = Object.freeze({version:packageInfo.version,
-  uiSha256:createHash('sha256').update(OPERATOR_UI_HTML).digest('hex'), node:process.versions.node});
+export const ACTIVE_BUILD = Object.freeze({version:packageInfo.version, node:process.versions.node});
 const messages = {
-  not_configured:'Войдите в TeamON. После входа здесь появятся компании, назначенные вам администратором.',
-  account_pending:'Нажмите «Показать мои компании», чтобы проверить вход и загрузить доступные компании.',
+  not_configured:'Войдите в TeamON через браузер. Затем укажите компанию, с которой хотите работать в чате.',
+  account_pending:'Сохранённый вход ещё не проверен. Запросите проверку статуса с refresh_account:true; список компаний автоматически не выводится.',
   account_login_required:'Сеанс входа завершён или недействителен. Войдите снова; настройки компаний не удалены.',
-  account_service_unavailable:'Master сейчас недоступен. Повторите загрузку компаний позже; повторный вход пока не требуется.',
-  account_reconnect_required:'Настроен личный вход через Master вместо прямых подключений. Переподключите MCP и откройте новый пульт; старые настройки сохранены, но здесь больше не используются.',
-  account_changed:'Выполнен вход под другим оператором. Переподключите MCP и откройте новый пульт, чтобы не смешивать контекст разных людей.'
+  account_service_unavailable:'Master сейчас недоступен. Повторите проверку статуса позже; повторный вход пока не требуется.',
+  account_reconnect_required:'Настроен личный вход через Master вместо прямых подключений. Переподключите MCP; старые настройки сохранены, но здесь больше не используются.',
+  account_changed:'Выполнен вход под другим оператором. Переподключите MCP и явно выберите рабочую компанию, чтобы не смешивать контекст разных людей.'
 };
 export function installationStatus(state = 'configured', configPath) {
   return {...ACTIVE_BUILD,state,liveChecked:false,accountLogin:!!configPath,
@@ -22,11 +19,11 @@ export function installationStatus(state = 'configured', configPath) {
 }
 export function registerInstallationStatus(server, status) {
   server.registerTool('installation_status', {
-    description:'Read the running Operator package/UI fingerprint and last observed setup state. No remote checks, credentials or mutations.',
-    inputSchema:{},outputSchema:z.looseObject({version:z.string(),state:z.string()}),
-    annotations:{readOnlyHint:true,openWorldHint:false}
-  }, async () => {
-    const value = typeof status === 'function' ? status() : status;
+    description:'Read the running package version and last observed connection state. Default is local, with no network or file writes. Set refresh_account:true explicitly after browser login or to recheck access: refresh the existing Master identity/assignments without returning a company list or probing companies. Does not start login, grant access or change agents. configured is not a company health check.',
+    inputSchema:{refresh_account:z.boolean().optional()},outputSchema:z.looseObject({version:z.string(),state:z.string()}),
+    annotations:{readOnlyHint:true,openWorldHint:true}
+  }, async (input) => {
+    const value = typeof status === 'function' ? await status(input) : status;
     return {content:[{type:'text',text:JSON.stringify(value)}],structuredContent:value};
   });
 }

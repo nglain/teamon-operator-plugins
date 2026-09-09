@@ -53,7 +53,7 @@ if (["--version", "version"].includes(command)) {
   try {
     const connected = await interactiveSetup(configPath);
     process.stdout.write(`${JSON.stringify(connected, null, 2)}\n`);
-    if (connected.ok) process.stderr.write(`Подключено. Найдено агентов: ${connected.agentsObserved}. Переподключите MCP и откройте новый пульт. Не регистрируйте второй MCP поверх плагина.\n`);
+    if (connected.ok) process.stderr.write(`Подключено. Найдено агентов: ${connected.agentsObserved}. Переподключите MCP и продолжайте с выбранной компанией в чате. Не регистрируйте второй MCP поверх плагина.\n`);
   } catch (error) {
     const messages = { terminal_required: "Откройте интерактивный терминал для скрытого ввода ключа.", invalid_fields: "Проверьте поля: короткие ID латиницей, HTTPS origin без /v3.", already_configured: "Компания уже подключена. При обновлении повторять setup не нужно.", invalid_config: "Существующая конфигурация повреждена или неполна; она не перезаписана.", unreadable_config: "Файл конфигурации недоступен для чтения." };
     process.stderr.write(`Подключение не завершено (${error.name === "AbortError" ? "cancelled" : error.setupProblem || probeFailure(error).reason}). ${messages[error.setupProblem] || "Проверьте адрес, ключ, ID компании и отсутствие уже существующего подключения."} Ключ не отправляйте в чат.\n`);

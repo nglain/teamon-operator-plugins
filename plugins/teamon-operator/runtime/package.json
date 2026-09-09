@@ -1,6 +1,6 @@
 {
   "name": "@teamon/operator-mcp",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "private": true,
   "type": "module",
   "bin": {
@@ -14,7 +14,6 @@
   ],
   "scripts": {
     "check": "node --test test/*.test.mjs",
-    "check:ui": "node scripts/check-ui.mjs",
     "package:release": "node scripts/package-release.mjs",
     "package:plugin": "node scripts/package-plugin.mjs",
     "pilot:two-instance": "node test/live-two-instance-pilot.mjs",

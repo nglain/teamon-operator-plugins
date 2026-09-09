@@ -21,8 +21,8 @@ export function registerResourceLogin(server,getService,{start=startResourceLogi
       promise.catch(()=>{if(attempts.get(instance_id)===attempt)attempts.delete(instance_id);});
     }
     const login=await attempt.promise;
-    if(!isCurrent()){await login.close();throw Error('Selected company changed; refresh the company list');}
-    const value={url:login.url,message:'Подтвердите подключение компании в браузере Master. Затем повторите чтение в пульте. Пароль и коды не отправляйте в чат.'};
+    if(!isCurrent()){await login.close();throw Error('Selected company changed; refresh account status and reselect the company');}
+    const value={url:login.url,message:'Подтвердите подключение выбранной компании в браузере Master. Затем вернитесь в этот чат и повторите её проверку. Пароль и коды не отправляйте в чат.'};
     return {content:[{type:'text',text:JSON.stringify(value)}],structuredContent:value};
   });
   const close=server.close.bind(server);

@@ -100,8 +100,8 @@ export async function startResourceLogin(binding,{fetchImpl=fetch,ttlMs=300_000,
           iss:url.searchParams.get('iss') ?? undefined,codeVerifier:flow.codeVerifier,redirectUri:callback,resource:new URL(binding.url),fetchFn});
         if(closed || !isCurrent())throw loginRequired();
         await saveResourceSession(binding,sessionFrom(binding,tokens));
-        respond(200,'Компания подключена. Вернитесь в пульт и повторите чтение. Эту вкладку можно закрыть.');
-      }catch{respond(400,'Подключение не завершено. Вернитесь в пульт и начните вход снова. Пароль и коды не отправляйте в чат.');}
+        respond(200,'Компания подключена. Вернитесь в чат и повторите чтение выбранной компании. Эту вкладку можно закрыть.');
+      }catch{respond(400,'Подключение не завершено. Вернитесь в чат и запросите новый вход. Пароль и коды не отправляйте в чат.');}
       finally{void close();}
     });
     server.requestTimeout=5000;server.headersTimeout=5000;

@@ -11,7 +11,7 @@ export { ACTIVE_BUILD, installationStatus, registerInstallationStatus } from './
 export function installationPath(explicit, env = process.env, userHome = os.homedir()) {
   return path.resolve(explicit || env.TEAMON_OPERATOR_CONFIG || path.join(userHome,'.config','teamon-operator','operator.json'));
 }
-// MCP initialization is local. Account discovery runs on fleet_list, not before tools exist.
+// MCP initialization is local. Account discovery requires an explicit status refresh or company lookup.
 export async function readInstallation(configPath, {deferAccount = false} = {}) {
   if (deferAccount) {
     try { await lstat(accountPath(configPath)); return {state:'account_pending'}; }

@@ -28,7 +28,7 @@ export async function startAccountLogin(configPath,{fetchImpl=fetch,save=saveAcc
       || url.searchParams.getAll('code').length!==1 || !/^[A-Za-z0-9_-]{43}$/.test(url.searchParams.get('code')||'')) {
       respond(400,'Этот ответ не относится к начатому входу.');return;
     }
-    if(stopped){respond(410,'Этот вход уже завершён. Начните новый вход из пульта.');return;}
+    if(stopped){respond(410,'Этот вход уже завершён. Запросите новый вход в чате.');return;}
     if(busy){respond(409,'Вход уже обрабатывается.');return;}
     busy=true;
     try{
@@ -56,7 +56,7 @@ export async function startAccountLogin(configPath,{fetchImpl=fetch,save=saveAcc
 export function registerAccountLogin(server,configPath,dependencies) {
   let pending, starting, closed=false;
   server.registerTool('account_login_open',{
-    description:'Start personal TeamON Operator login in the browser when the person asks to connect or sign in. Returns a Master authorization URL, never a password or credential. After first login call fleet_list in this same MCP. Switching an established identity or manual mode requires reconnect; manual connections are not deleted.',
+    description:'Start personal TeamON Operator login in the browser when the person asks to connect or sign in. Returns a Master authorization URL, never a password or credential. After browser consent call installation_status with refresh_account:true in this same MCP, then work with the selected company. Do not list companies automatically. Switching an established identity or manual mode requires reconnect; manual connections are not deleted.',
     inputSchema:{},outputSchema:z.object({url:z.string(),message:z.string()}),
     annotations:{readOnlyHint:false,destructiveHint:false,openWorldHint:true}
   },async()=>{
@@ -71,7 +71,7 @@ export function registerAccountLogin(server,configPath,dependencies) {
       pending=next;return next;
     })().finally(()=>{starting=undefined;});
     const login=await starting;
-    const value={url:login.url,message:'Откройте ссылку в браузере, войдите личным логином и паролем. Затем нажмите «Показать мои компании» в пульте. Пароль не отправляйте в чат. При смене оператора или переходе с ручной настройки переподключите MCP.'};
+    const value={url:login.url,message:'Откройте ссылку в браузере, войдите личным логином и паролем. Затем вернитесь в этот чат и сообщите о завершении входа. Проверим статус и продолжим с нужной компанией. Пароль не отправляйте в чат. При смене оператора или переходе с ручной настройки переподключите MCP.'};
     return{content:[{type:'text',text:JSON.stringify(value)}],structuredContent:value};
   });
   const close=server.close.bind(server);
