@@ -57,6 +57,17 @@ async function instanceSpec(file, instanceId) {
 
 function coreDashboard(value, label, base) {
   const input = object(value, label);
+  if (input.mcp !== undefined) {
+    exactKeys(input, ['mcp'], label);
+    const mcp = object(input.mcp, `${label}.mcp`);
+    exactKeys(mcp, ['url','issuer','subject','tokenFile'], `${label}.mcp`);
+    let url;
+    try {url = new URL(text(mcp.url, 'mcp.url', 1000));} catch {throw new Error('invalid direct MCP URL');}
+    if (url.protocol !== 'https:' || url.username || url.password || url.hash || url.search
+      || url.href !== mcp.url || url.origin === MASTER_ORIGIN || mcp.issuer !== MASTER_ORIGIN) throw new Error('invalid direct MCP binding');
+    return Object.freeze({mcp:Object.freeze({url:url.href,issuer:mcp.issuer,
+      subject:text(mcp.subject, 'mcp.subject', 200),tokenFile:path.resolve(base,text(mcp.tokenFile,'mcp.tokenFile',1000))})});
+  }
   exactKeys(input, ["baseUrl", "tokenEnv", "tokenFile", "accountFile", "accountFingerprint", "gatewayInstanceId"], label);
   let url;
   try { url = new URL(text(input.baseUrl, `${label}.baseUrl`, 1000)); }

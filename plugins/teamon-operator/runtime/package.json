@@ -1,6 +1,6 @@
 {
   "name": "@teamon/operator-mcp",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "private": true,
   "type": "module",
   "bin": {
@@ -24,6 +24,7 @@
     "node": ">=24.14.1 <25"
   },
   "dependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
     "@modelcontextprotocol/sdk": "1.30.0",
     "zod": "4.3.6"
   }

@@ -2,6 +2,7 @@ import { digest } from "../digest.mjs";
 import { adapterError, compatibilityReport, probeFailure } from "../compatibility.mjs";
 import { coreCredential } from "../credentials.mjs";
 import { createHash } from "node:crypto";
+import { CoreMcp } from '../core-mcp.mjs';
 import { coreChangeSchema, coreDocumentTargetSchema, coreDocumentInventorySchema, coreReminderRevisionSchema, coreCredentialSelectionSchema, coreCredentialEntriesSchema, coreRevisionSchema, CORE_CHANGE_KINDS, CORE_ADMIN_CAPABILITIES, CORE_LIFECYCLE_CAPABILITIES } from "./core-changes.mjs";
 
 export const CORE_CAPABILITIES = Object.freeze({
@@ -12,15 +13,7 @@ export const CORE_CAPABILITIES = Object.freeze({
   consultation: "native_agent_execution_with_operator_only_result_when_advertised"
 });
 
-// Codes, not upstream prose: responses may contain implementation details or secrets.
-const OPERATOR_ERRORS = new Set(["unauthorized", "operation_not_found", "approval_mismatch", "approval_expired",
-  "conversation_busy", "conversation_changed", "route_changed", "route_unavailable", "unsupported_transport",
-  "invalid_input", "command_unavailable", "unsupported_command", "command_failed", "core_response_unavailable",
-  "agent_not_found", "revision_changed", "document_changed", "agent_busy", "unsupported_change", "secret_material",
-  "invalid_document", "provider_not_ready", "runtime_apply_failed", "request_too_large", "reminder_changed", "reminder_busy",
-  "credential_changed", "credential_not_found", "credential_write_unknown", "context_changed", "context_unavailable",
-  "consultation_not_found", "consultation_unsupported", "request_conflict", "result_expired", "provider_unsupported",
-  "invalid_parent", "conversation_not_found", "unsupported_private_execution"]);
+import { OPERATOR_ERRORS } from "../compatibility.mjs";
 const nativeDigest = value => typeof value === "string" && /^[a-f0-9]{64}$/u.test(value);
 const nativeId = value => typeof value === "string" && /^operator-[a-f0-9-]{36}$/u.test(value);
 const nativeAdminId = value => typeof value === "string" && /^operator-admin-[a-f0-9-]{36}$/u.test(value);
@@ -30,7 +23,8 @@ const requestIdPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/u;
 const validRequestId = value => typeof value === "string" && requestIdPattern.test(value);
 // Server authority is independent of the local operator's display identity.
 // Old personal keys retain their exact person binding for backward compatibility.
-export function coreActorMatches(access, operatorId) {
+export function coreActorMatches(access, operatorId, mcp) {
+  if (mcp) return access?.authType === 'oauth_operator' && access.actor?.issuer === mcp.issuer && access.actor?.subject === mcp.subject;
   return access?.authType === "company_admin" || !!operatorId && access?.actor?.id === operatorId;
 }
 function assertSelectedRoute(route, selected) {
@@ -84,6 +78,7 @@ function agentSummary(agent) {
   };
 }
 function endpointBinding(instance) {
+  if (instance.core.mcp) return digest({instanceId:instance.id,mcp:{url:instance.core.mcp.url,issuer:instance.core.mcp.issuer,subject:instance.core.mcp.subject}});
   return digest({ instanceId: instance.id, baseUrl: instance.core.baseUrl, ...(instance.core.gatewayInstanceId ? {gatewayInstanceId:instance.core.gatewayInstanceId} : {}) });
 }
 function conversationRef(instance, event) {
@@ -107,13 +102,15 @@ function parseConversationRef(instance, ref) {
 }
 
 export class CoreDashboard {
-  constructor({ fetchImpl = globalThis.fetch, env = process.env, timeoutMs = 15_000, maxBytes = 2 * 1024 * 1024, operator, operations } = {}) {
+  async close() { await this.direct.close?.(); }
+  constructor({ fetchImpl = globalThis.fetch, env = process.env, timeoutMs = 15_000, maxBytes = 2 * 1024 * 1024, operator, operations, direct } = {}) {
     this.fetch = fetchImpl;
     this.env = env;
     this.timeoutMs = timeoutMs;
     this.maxBytes = maxBytes;
     this.operator = operator;
     this.operations = operations;
+    this.direct = direct || new CoreMcp({fetchImpl,maxBytes});
   }
 
   async #get(instance, pathname, params = {}, timeoutMs) {
@@ -121,6 +118,11 @@ export class CoreDashboard {
   }
 
   async #request(instance, pathname, params = {}, body, timeoutMs = this.timeoutMs) {
+    if (instance.core.mcp) {
+      const data = await this.direct.request(instance,pathname,params,body,body === undefined ? timeoutMs : Math.max(timeoutMs,30_000));
+      if (data.ok === false || data.error) throw adapterError(OPERATOR_ERRORS.has(data.code) ? data.code : 'endpoint_error', 'Core MCP operation failed');
+      return data;
+    }
     const token = await coreCredential(instance, this.env);
     const prefix=instance.core.gatewayInstanceId ? `/api/operator/instances/${encodeURIComponent(instance.core.gatewayInstanceId)}/core` : '';
     const url = new URL(prefix + pathname, `${instance.core.baseUrl}/`);
@@ -169,6 +171,7 @@ export class CoreDashboard {
   }
 
   binding(instance) {
+    if (instance.core.mcp) return endpointBinding(instance);
     // Login freshness is checked by coreCredential. A same-person re-login must
     // not orphan existing receipts or change pre-0.2.7 operation bindings.
     const { accountFingerprint, ...core } = instance.core;
@@ -182,16 +185,17 @@ export class CoreDashboard {
       || !access.capabilities || !Array.isArray(access.capabilities.channels)) {
       throw adapterError("invalid_response", "Core invalid_response: operator access contract");
     }
-    if (access.authType !== undefined && !["company_admin", "personal_operator"].includes(access.authType)) throw adapterError("invalid_response", "Core invalid_response: operator authentication type");
+    if (access.authType !== undefined && !["company_admin", "personal_operator", ...(instance.core.mcp ? ['oauth_operator'] : [])].includes(access.authType)) throw adapterError("invalid_response", "Core invalid_response: operator authentication type");
+    if (instance.core.mcp && !coreActorMatches(access,this.operator?.id,instance.core.mcp)) throw adapterError('permission_denied','Core MCP actor mismatch');
     if (access.capabilities.consultationExecution !== undefined && access.capabilities.consultationExecution !== "native_agent") throw adapterError("invalid_response", "Core invalid_response: consultation execution contract");
-    return { actor: pick(access.actor, ["id", "label"]), scope: access.scope,
+    return { actor: pick(access.actor, ["id", "label", ...(instance.core.mcp ? ['issuer','subject'] : [])]), scope: access.scope,
       authType: access.authType || "personal_operator",
       capabilities: pick(access.capabilities, ["messagePrepare", "messageCommit", "messageStatus", "channels", ...CORE_ADMIN_CAPABILITIES, ...CORE_LIFECYCLE_CAPABILITIES, ...CORE_CONSULT_CAPABILITIES]) };
   }
 
   async #replyAccess(instance) {
     const access = await this.accessInspect(instance);
-    if (!coreActorMatches(access, this.operator?.id)) throw new Error("Core operator identity mismatch; reconnect using this person's assigned access");
+    if (!coreActorMatches(access, this.operator?.id, instance.core.mcp)) throw new Error("Core operator identity mismatch; reconnect using this person's assigned access");
     if (!["messagePrepare", "messageCommit", "messageStatus"].every(name => access.capabilities[name] === true)
       || !access.capabilities.channels.includes("telegram_bot_text")) throw new Error("Core native reply operation_not_supported by this access contract");
     return access;
@@ -272,7 +276,7 @@ export class CoreDashboard {
 
   async #administrationAccess(instance) {
     const access = await this.accessInspect(instance);
-    if (!coreActorMatches(access, this.operator?.id)) throw new Error("Core operator identity mismatch; reconnect using this person's assigned access");
+    if (!coreActorMatches(access, this.operator?.id, instance.core.mcp)) throw new Error("Core operator identity mismatch; reconnect using this person's assigned access");
     if (!CORE_ADMIN_CAPABILITIES.every(name => access.capabilities[name] === true)) throw new Error("Core native agent administration operation_not_supported by this contract");
     return access;
   }
@@ -339,7 +343,7 @@ export class CoreDashboard {
 
   async #lifecycleAccess(instance, capability) {
     const access = await this.accessInspect(instance);
-    if (!coreActorMatches(access, this.operator?.id)) throw new Error("Core operator identity mismatch; reconnect using this person's assigned access");
+    if (!coreActorMatches(access, this.operator?.id, instance.core.mcp)) throw new Error("Core operator identity mismatch; reconnect using this person's assigned access");
     if (access.capabilities[capability] !== true) throw new Error(`Core ${capability} operation_not_supported by this contract`);
     return access;
   }
@@ -444,22 +448,22 @@ export class CoreDashboard {
     const activitySupport = activity.status === "fulfilled" ? { status: "observed", evidence: "recent_activity_read" } : probeFailure(activity.reason);
     const agentSupport = roster.status === "fulfilled" ? { status: "not_checked", reason: "roster_observed_people_not_checked" } : probeFailure(roster.reason);
     const replySupport = access.status === "rejected" ? probeFailure(access.reason)
-      : !coreActorMatches(access.value, this.operator?.id) ? { status: "error", reason: "actor_mismatch" }
+      : !coreActorMatches(access.value, this.operator?.id, instance.core.mcp) ? { status: "error", reason: "actor_mismatch" }
       : ["messagePrepare", "messageCommit", "messageStatus"].every(name => access.value.capabilities[name] === true)
         && access.value.capabilities.channels.includes("telegram_bot_text")
         ? { status: "advertised", evidence: "native_company_contract_route_not_checked" }
         : { status: "unavailable", reason: "native_reply_not_advertised" };
     const adminSupport = access.status === "rejected" ? probeFailure(access.reason)
-      : !coreActorMatches(access.value, this.operator?.id) ? { status: "error", reason: "actor_mismatch" }
+      : !coreActorMatches(access.value, this.operator?.id, instance.core.mcp) ? { status: "error", reason: "actor_mismatch" }
       : CORE_ADMIN_CAPABILITIES.every(name => access.value.capabilities[name] === true)
         ? { status: "advertised", evidence: "native_company_administration_target_not_checked" }
         : { status: "unavailable", reason: "native_administration_not_advertised" };
     const optionalSupport = capability => access.status === "rejected" ? probeFailure(access.reason)
-      : !coreActorMatches(access.value, this.operator?.id) ? { status: "error", reason: "actor_mismatch" }
+      : !coreActorMatches(access.value, this.operator?.id, instance.core.mcp) ? { status: "error", reason: "actor_mismatch" }
       : access.value.capabilities[capability] === true ? { status: "advertised", evidence: "native_company_contract_target_not_checked" }
       : { status: "unavailable", reason: "native_capability_not_advertised" };
     return {
-      source: "core_dashboard", retrievedAt: new Date().toISOString(),
+      source: instance.core.mcp ? 'core_mcp' : "core_dashboard", retrievedAt: new Date().toISOString(),
       health: pick(health, ["ok", "product", "version", "gitSha", "uptimeHuman", "agentCount"]),
       agents: roster.status === "fulfilled" ? roster.value : null, capabilities: CORE_CAPABILITIES,
       operatorAccess: access.status === "fulfilled" ? access.value : { status: "not_checked", reason: probeFailure(access.reason).reason },
@@ -474,7 +478,7 @@ export class CoreDashboard {
         agent_documents_list: optionalSupport("documentInventory"), reminders_read: optionalSupport("reminders"),
         provider_auth_read: optionalSupport("providerAuth"), provider_auth_start: optionalSupport("providerAuth"),
         connector_credential_read: optionalSupport("connectorCredential"),
-        agent_consult: access.status === "fulfilled" && coreActorMatches(access.value, this.operator?.id)
+        agent_consult: access.status === "fulfilled" && coreActorMatches(access.value, this.operator?.id, instance.core.mcp)
           && access.value.capabilities.consultationStart === true && access.value.capabilities.consultationExecution !== "native_agent"
           ? { status: "unavailable", reason: "native_agent_execution_not_advertised" } : optionalSupport("consultationStart"),
         consultation_read: optionalSupport("consultationRead"),

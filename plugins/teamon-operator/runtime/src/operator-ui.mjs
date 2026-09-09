@@ -142,6 +142,7 @@ body[data-hide-date=true] .intent-date,body[data-hide-duration=true] .intent-dur
     const response = await request('tools/call', { name, arguments:args });
     if (response.isError) {
       const reason = (response.content || []).filter(item => item.type === 'text' && typeof item.text === 'string').map(item => item.text).join(' ').slice(0,1000);
+      if (name === 'instance_inspect' && reason.includes('instance_login_required')) throw new Error('Для этой компании нужен вход. Нажмите «Подключить компанию через Master», завершите вход в браузере и повторите чтение.');
       throw new Error('Чтение недоступно: ' + name + (reason ? ' · ' + reason : '') + '. Остальные разделы доступны; это не запрет агенту.');
     }
     if (!response.structuredContent || typeof response.structuredContent !== 'object') throw new Error('Неподдерживаемый ответ: ' + name);
@@ -231,6 +232,22 @@ body[data-hide-date=true] .intent-date,body[data-hide-duration=true] .intent-dur
   function inspect(c) {
     peopleByAgent.clear();
     company = c; agent = person = conversation = null; agents = []; page = 'agents'; transition(); chrome(); detail.replaceChildren(node('h2', c.label || c.instanceId));
+    if(c.connection?.type === 'direct_mcp') {
+      const feedback=node('div');
+      detail.append(button('Подключить компанию через Master',async event=>{
+        const trigger=event.currentTarget,version=generation;trigger.disabled=true;
+        try {
+          const data=await call('instance_login_open',{instance_id:c.instanceId});
+          if(version!==generation || !trigger.isConnected)return;
+          const url=new URL(data.url);
+          if(url.origin!=='https://master.nglain.com' || url.pathname!=='/oauth/authorize')throw new Error('Неожиданный адрес входа');
+          const link=node('a','Продолжить вход в браузере');link.href=url.href;link.target='_blank';link.rel='noreferrer noopener';
+          feedback.replaceChildren(link);note(feedback,'После входа нажмите «Повторить чтение». Существующий вход Master используется повторно.');
+          try{await request('ui/open-link',{url:url.href});}catch{}
+        }catch{if(version===generation && trigger.isConnected)feedback.replaceChildren(node('p','Не удалось начать подключение. Обновите список компаний и повторите.'));}
+        finally{if(trigger.isConnected)trigger.disabled=!ready;}
+      }),feedback);
+    }
     void load(detail, () => call('instance_inspect', { instance_id:c.instanceId }), data => {
       if (!Array.isArray(data.observed?.agents)) { note(detail, 'Этот сервер не предоставил список агентов. Используйте текстовые инструменты с его native contract.'); return; }
       agents = data.observed.agents; c.observedAgents = agents; c.observedAt = new Date().toLocaleTimeString(); renderAgents();

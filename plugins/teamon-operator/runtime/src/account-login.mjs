@@ -37,8 +37,10 @@ export async function startAccountLogin(configPath,{fetchImpl=fetch,save=saveAcc
       if(token.token_type!=='Bearer' || !Number.isInteger(token.expires_in) || token.expires_in<=0 || token.expires_in>7*86400)throw new Error('invalid_token_response');
       if(stopped)throw new Error('login_cancelled');
       await save(accountPath(configPath),{schemaVersion:1,origin:MASTER_ORIGIN,accessToken:token.access_token,expiresAt:new Date(Date.now()+token.expires_in*1000).toISOString()});
-      respond(200,'Вход выполнен. Вернитесь в пульт TeamON Operator и нажмите «Показать мои компании». Если вы сменили оператора в уже работающем пульте, переподключите MCP и откройте новый пульт.');
-    }catch{respond(502,'Вход не завершён. Начните вход заново из пульта. Пароль и коды в чат отправлять не нужно.');}
+      // Leave the one-shot local port only after credentials are durably saved.
+      // The stable page contains no authorization code, token or local callback URL.
+      res.statusCode=303;res.setHeader('Location',`${MASTER_ORIGIN}/operator/connected`);res.end();
+    }catch{res.statusCode=303;res.setHeader('Location',`${MASTER_ORIGIN}/operator/connection-failed`);res.end();}
     finally{void close();}
   });
   server.requestTimeout=5000;server.headersTimeout=5000;

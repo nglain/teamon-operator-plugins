@@ -1,3 +1,12 @@
+// Codes, not upstream prose: responses may contain implementation details or secrets.
+export const OPERATOR_ERRORS = new Set(["unauthorized", "operation_not_found", "approval_mismatch", "approval_expired",
+  "conversation_busy", "conversation_changed", "route_changed", "route_unavailable", "unsupported_transport",
+  "invalid_input", "command_unavailable", "unsupported_command", "command_failed", "core_response_unavailable",
+  "agent_not_found", "revision_changed", "document_changed", "agent_busy", "unsupported_change", "secret_material",
+  "invalid_document", "provider_not_ready", "runtime_apply_failed", "request_too_large", "reminder_changed", "reminder_busy",
+  "credential_changed", "credential_not_found", "credential_write_unknown", "context_changed", "context_unavailable",
+  "consultation_not_found", "consultation_unsupported", "request_conflict", "result_expired", "provider_unsupported",
+  "invalid_parent", "conversation_not_found", "unsupported_private_execution"]);
 // Local adapter contract, not a remote API version or an authorization grant.
 const FEATURES = [
   "instance_inspect", "agent_inspect", "conversations_list", "conversation_read",

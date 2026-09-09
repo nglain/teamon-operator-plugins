@@ -8,7 +8,8 @@ import { StaffAdapter } from "./adapters/staff.mjs";
 function summary(instance) {
   if (instance.runtime === "core") return {
     instanceId: instance.id, label: instance.label, runtime: "core",
-    desired: null, capabilities: CORE_CAPABILITIES
+    desired: null, capabilities: CORE_CAPABILITIES,
+    ...(instance.core.mcp ? {connection:{type:'direct_mcp'}} : {})
   };
   const release = instance.desired.release || {};
   return {
@@ -192,6 +193,7 @@ export class OperatorService {
   }
 
   async close() {
+    await this.adapters.core.close?.();
     await this.channels.close?.();
   }
 }
