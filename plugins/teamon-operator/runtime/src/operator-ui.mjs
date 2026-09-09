@@ -1,18 +1,20 @@
-import { activityEpisodes } from './activity-presentation.mjs';
+import { activityEpisodes, intentPreview } from './activity-presentation.mjs';
 import packageInfo from '../package.json' with { type: 'json' };
 
 export const OPERATOR_UI_URI = "ui://teamon-operator/companies.html";
 export const OPERATOR_UI_HTML = String.raw`<!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TeamON · Оператор</title><style>
-:root{color-scheme:light dark;--bg:light-dark(#f8faf8,#171d1b);--card:light-dark(#fff,#202825);--text:light-dark(#20352e,#e5efe9);--muted:light-dark(#63776c,#a5b7ab);--line:light-dark(#dce6df,#35453c);--accent:light-dark(#116848,#88d9af)}
+:root{color-scheme:light dark;--bg:light-dark(#faf8f3,#1b1915);--card:light-dark(#fffdf8,#27231c);--text:light-dark(#352e20,#f2ebde);--muted:light-dark(#756951,#bdb09a);--line:light-dark(#e6ddcb,#4b4030);--accent:light-dark(#876013,#e5bd68)}
 *{box-sizing:border-box}body{margin:0;color:var(--text);font:14px/1.5 system-ui,sans-serif;background:transparent}main{border:1px solid var(--line);border-radius:18px;background:var(--bg);overflow:hidden}header{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;align-items:center}.eyebrow{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--accent);font-weight:700}h1{font-size:23px;letter-spacing:-.03em;margin:4px 0}h2{font-size:18px;margin:0 0 10px}h3{font-size:14px;margin:12px 0 5px}p{margin:5px 0}.muted{color:var(--muted);font-size:12px}.layout{min-height:390px}.layout.workspace{display:grid;grid-template-columns:225px minmax(0,1fr)}#people{padding:14px;border-right:1px solid var(--line);max-height:690px;overflow:auto}article{padding:20px 24px;min-width:0;max-height:690px;overflow:auto}.choice{display:block;width:100%;text-align:left;margin:7px 0;padding:13px;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:11px;cursor:pointer;overflow-wrap:anywhere}.choice:hover,.choice[aria-current=true],.quiet[aria-current=true]{border-color:var(--accent);box-shadow:inset 3px 0 var(--accent)}button{font:inherit}button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.quiet{border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--accent);padding:7px 10px;cursor:pointer}button:disabled{opacity:.5;cursor:default}.row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(215px,100%),1fr));gap:12px}.grid .choice{margin:0;min-height:120px}.avatar{width:36px;height:36px;border:1px solid var(--line);border-radius:11px;display:grid;place-items:center;margin-bottom:12px;color:var(--accent);font-weight:700}.message,pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:11px;margin:10px 0;max-width:100%;font:inherit}.message strong{display:block;font-size:11px;color:var(--accent);margin-bottom:5px}details{margin:10px 0;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--card)}details details{background:var(--bg)}summary{cursor:pointer;font-weight:600;overflow-wrap:anywhere}.sources{padding-top:10px;min-width:0}.empty{padding:24px 0;color:var(--muted)}#breadcrumb{padding:0 24px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}footer{padding:13px 24px;border-top:1px solid var(--line)}#status{color:var(--muted);font-size:12px;overflow-wrap:anywhere;min-height:20px}#use-context{margin-bottom:7px}#people-toggle{display:none}[hidden]{display:none!important}@media(max-width:600px){header{padding:18px;align-items:flex-start}article{padding:18px}.layout.workspace{grid-template-columns:1fr}#people{border-right:0;border-bottom:1px solid var(--line);max-height:250px}.workspace #people-toggle{display:block}h1{font-size:20px}#breadcrumb,footer{padding-left:18px;padding-right:18px}}
+.intent{padding:14px 16px}.intent summary{list-style:none;font-weight:400}.intent summary::-webkit-details-marker{display:none}.intent-meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:11px}.intent-title{font-size:15px;font-weight:600;margin:7px 0 5px}.intent-answer{color:var(--muted);font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.intent-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:9px;font-size:11px;color:var(--muted)}.intent-badge{border:1px solid var(--line);border-radius:20px;padding:2px 8px}.intent-open{color:var(--accent)}.data-note{background:transparent;border:0;padding:4px 0}.data-note summary{font-weight:400;font-size:12px;color:var(--muted)}
 </style></head><body><main><header><div><div class="eyebrow">TeamON / Operator</div><h1>Рабочее место оператора</h1><p id="identity" class="muted">Компании → агенты → люди и контекст</p></div><button id="refresh" class="quiet" disabled>Обновить</button></header>
 <div id="breadcrumb" class="row" aria-label="Навигация"></div><div id="layout" class="layout"><aside id="people" aria-label="Пользователи" hidden></aside><article id="detail"><h2>Компании</h2><p class="empty">Ожидаю список подключений…</p></article></div>
 <footer><button id="use-context" class="quiet" hidden>Работать в этом контексте</button> <button id="clear-context" class="quiet" hidden>Снять закрепление</button><div id="status" role="status" aria-live="polite">Подключение к MCP host…</div><div id="installation" class="muted">UI ${packageInfo.version} · MCP ещё не проверен</div></footer></main>
 <script>
 (() => {
   const activityEpisodes = ${activityEpisodes.toString()};
+  const intentPreview = ${intentPreview.toString()};
   const el = id => document.getElementById(id), detail = el('detail'), status = el('status');
   const pending = new Map();
   let nextId = 0, ready = false, contextSupport = false, companies = [], company = null, agents = [], agent = null, person = null;
@@ -223,19 +225,28 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
   }
   const dateLabel = ts => Number.isFinite(Date.parse(ts)) ? new Date(ts).toLocaleString('ru-RU') : 'Время не сохранено';
   function intentCards(parent, messages) {
-    note(parent, 'Предварительные интенты: границы по входящим сообщениям, не окончательная смысловая разметка. Уточнение может продолжать прежнее обращение — выберите нужные сообщения для разбора.');
     activityEpisodes(messages).forEach(e => {
-      const box = node('details',''); box.dataset.intentId = e.id;
-      const title = e.title.length > 140 ? e.title.slice(0,140) + '…' : e.title;
-      const summary = node('summary',title); box.append(summary);
+      const box = node('details','','intent'); box.dataset.intentId = e.id;
+      const clean = e.requestMissing ? 'Продолжение разговора' : intentPreview(e.title) || 'Сообщение без текста';
+      const title = clean.length > 120 ? clean.slice(0,120) + '…' : clean;
+      const summary = node('summary',''); box.append(summary);
       const a = agents.find(a=>a.id === e.agentId) || {id:e.agentId};
-      note(summary,userName({userId:e.userId,displayName:e.userName,username:e.username}) + ' ↔ ' + agentName(a) + ' · ' + dateLabel(e.lastActive));
-      note(summary,(e.outcome === 'response_observed' ? 'Есть ответ агента' : 'Ответ в выборке не найден')
-        + ' · Выполнение и принятие не проверены');
-      const elapsed = e.elapsedMs === null ? 'Интервал неизвестен' : Math.round(e.elapsedMs / 1000) + ' с между сообщениями';
-      note(summary,elapsed + ' · ' + e.userMessages + ' от пользователя / ' + e.agentMessages + ' от агента');
+      const meta = node('div','','intent-meta');
+      meta.append(node('span',userName({userId:e.userId,displayName:e.userName,username:e.username}) + ' → ' + agentName(a)),node('span',dateLabel(e.lastActive)));
+      summary.append(meta,node('div',title,'intent-title'));
+      const replies = e.messages.filter(m=>m.role === 'assistant');
+      const answer = replies.at(-1);
+      summary.append(node('div',answer ? 'Ответ: ' + (intentPreview(answer.preview) || 'Без текста') + (answer.previewTruncated ? '…' : '') : 'В загруженной истории ответа пока нет.','intent-answer'));
+      const bottom = node('div','','intent-bottom'), facts = node('span','');
+      facts.append(node('span',answer ? 'Агент ответил' : 'Нет ответа','intent-badge'));
+      const ms = !e.requestMissing && replies.length ? Date.parse(replies[0].ts)-Date.parse(e.startedAt) : NaN;
+      if (Number.isFinite(ms) && ms >= 0) {
+        const seconds = Math.round(ms/1000);
+        facts.append(document.createTextNode(' · До ответа: ' + (seconds < 60 ? seconds + ' с' : Math.floor(seconds/60) + ' мин' + (seconds%60 ? ' ' + seconds%60 + ' с' : ''))));
+      }
+      bottom.append(facts,node('span','Подробнее ›','intent-open')); summary.append(bottom);
       const body = node('div','','sources'); box.append(body);
-      note(body,'Интервал — не время вычисления. Число ходов модели, уточнений и извлечённые уроки требуют отдельного разбора источников.');
+      note(body,'Выполнение и принятие результата ещё не проверены. ' + e.userMessages + ' сообщ. пользователя · ' + e.agentMessages + ' сообщ. агента.');
       e.messages.forEach(m => {
         const line = node('div','','message'); line.append(node('strong',(m.role === 'user' ? 'Пользователь' : 'Агент') + ' · ' + dateLabel(m.ts)),node('div',(m.preview || '[Без текста]') + (m.previewTruncated ? '…' : ''))); body.append(line);
       });
@@ -244,7 +255,7 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
     });
   }
   function activity(parent) {
-    note(parent, 'Последние сохранённые сообщения · новые сверху. Это выборка недавних бесед, не весь внешний чат и не подтверждение доставки.');
+    note(parent, tab === 'activity' ? 'Последние обращения · новые сверху' : 'Последние сообщения · новые сверху');
     void load(parent, () => activityData ? Promise.resolve(activityData) : call('activity_read', { ...base(), view:'messages', limit:50, ...(person ? { user_id:String(person.userId) } : {}) }), data => {
       activityData = data;
       const seen = new Set();
@@ -272,6 +283,11 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
       if (!messages.length) note(parent, 'В недавней выборке сообщений нет. Более старые беседы доступны во вкладке «Сессии».');
       if (data.unavailable?.length) note(parent, 'Не удалось прочитать бесед: ' + data.unavailable.length + '. Это не означает, что сообщений не было.');
       if (data.coverage?.namesAvailable === false) note(parent, 'Справочник имён недоступен; показаны известные имена из событий.');
+      const info = section(parent,'О данных',body => {
+        note(body,'Показаны недавние сохранённые сообщения, не весь внешний чат. Интенты сгруппированы предварительно: уточнение может относиться к прежнему обращению.');
+        note(body,'«Агент ответил» не означает, что задача выполнена или результат принят. «До ответа» — время между сохранёнными сообщениями, включая ожидание, не время вычисления. Число сообщений — не число ходов модели.');
+        note(body,'Для проверки результата и извлечения уроков откройте обращение и выберите его для разбора. Без источников выводы не добавляются.');
+      }); info.classList.add('data-note');
     });
   }
   function conversations(parent) {

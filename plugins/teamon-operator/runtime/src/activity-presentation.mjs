@@ -1,5 +1,12 @@
 // Source-only episodes, not a semantic classifier or execution ledger.
 // Self-contained so this same tested function can be embedded in the MCP App.
+export function intentPreview(value) {
+  if (typeof value !== 'string') return '';
+  // Hide only known leading transport metadata in the preview; source stays intact.
+  return value.replace(/^(?:\s*\[tg_(?:chat_id|msg_id|dttm|timezone|local_dttm|calendar_authoritative|media_group_count|media_group_msg_ids):[^\]]*\])+\s*/u, '')
+    .replace(/\s+/gu, ' ').trim();
+}
+
 export function activityEpisodes(input) {
   const groups = new Map(), seen = new Set();
   const timestamp = m => typeof m.ts === 'string' && Number.isFinite(Date.parse(m.ts)) ? Date.parse(m.ts) : null;
