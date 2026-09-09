@@ -9,6 +9,13 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
 *{box-sizing:border-box}body{margin:0;color:var(--text);font:14px/1.5 system-ui,sans-serif;background:transparent}main{border:1px solid var(--line);border-radius:18px;background:var(--bg);overflow:hidden}header{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;align-items:center}.eyebrow{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--accent);font-weight:700}h1{font-size:23px;letter-spacing:-.03em;margin:4px 0}h2{font-size:18px;margin:0 0 10px}h3{font-size:14px;margin:12px 0 5px}p{margin:5px 0}.muted{color:var(--muted);font-size:12px}.layout{min-height:390px}.layout.workspace{display:grid;grid-template-columns:225px minmax(0,1fr)}#people{padding:14px;border-right:1px solid var(--line);max-height:690px;overflow:auto}article{padding:20px 24px;min-width:0;max-height:690px;overflow:auto}.choice{display:block;width:100%;text-align:left;margin:7px 0;padding:13px;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:11px;cursor:pointer;overflow-wrap:anywhere}.choice:hover,.choice[aria-current=true],.quiet[aria-current=true]{border-color:var(--accent);box-shadow:inset 3px 0 var(--accent)}button{font:inherit}button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.quiet{border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--accent);padding:7px 10px;cursor:pointer}button:disabled{opacity:.5;cursor:default}.row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(215px,100%),1fr));gap:12px}.grid .choice{margin:0;min-height:120px}.avatar{width:36px;height:36px;border:1px solid var(--line);border-radius:11px;display:grid;place-items:center;margin-bottom:12px;color:var(--accent);font-weight:700}.message,pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:11px;margin:10px 0;max-width:100%;font:inherit}.message strong{display:block;font-size:11px;color:var(--accent);margin-bottom:5px}details{margin:10px 0;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--card)}details details{background:var(--bg)}summary{cursor:pointer;font-weight:600;overflow-wrap:anywhere}.sources{padding-top:10px;min-width:0}.empty{padding:24px 0;color:var(--muted)}#breadcrumb{padding:0 24px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}footer{padding:13px 24px;border-top:1px solid var(--line)}#status{color:var(--muted);font-size:12px;overflow-wrap:anywhere;min-height:20px}#use-context{margin-bottom:7px}#people-toggle{display:none}[hidden]{display:none!important}@media(max-width:600px){header{padding:18px;align-items:flex-start}article{padding:18px}.layout.workspace{grid-template-columns:1fr}#people{border-right:0;border-bottom:1px solid var(--line);max-height:250px}.workspace #people-toggle{display:block}h1{font-size:20px}#breadcrumb,footer{padding-left:18px;padding-right:18px}}
 .intent{padding:14px 16px}.intent summary{list-style:none;font-weight:400}.intent summary::-webkit-details-marker{display:none}.intent-meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:11px}.intent-title{font-size:15px;font-weight:600;margin:7px 0 5px}.intent-answer{color:var(--muted);font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.intent-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:9px;font-size:11px;color:var(--muted)}.intent-badge{border:1px solid var(--line);border-radius:20px;padding:2px 8px}.intent-open{color:var(--accent)}.data-note{background:transparent;border:0;padding:4px 0}.data-note summary{font-weight:400;font-size:12px;color:var(--muted)}
 </style></head><body><main><header><div><div class="eyebrow">TeamON / Operator</div><h1>Рабочее место оператора</h1><p id="identity" class="muted">Компании → агенты → люди и контекст</p></div><button id="refresh" class="quiet" disabled>Обновить</button></header>
+<div id="view-switch" class="row" style="padding:0 24px" aria-label="Вид рабочего места"><button id="view-standard" class="quiet" disabled>Стандартный</button><button id="view-custom" class="quiet" disabled>Мой вид</button><span id="view-note" class="muted" role="status"></span></div>
+<style>
+.quiet[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 3px 0 var(--accent)}
+@media(min-width:601px){.layout.workspace{grid-template-columns:var(--sidebar-width,225px) minmax(0,1fr)}}
+body[data-density=compact] .choice{padding:8px;margin:4px 0}body[data-density=compact] article{padding:12px}body[data-density=compact] .intent{padding:9px 12px}body[data-density=compact] .grid .choice{min-height:90px}
+body[data-hide-date=true] .intent-date,body[data-hide-duration=true] .intent-duration,body[data-hide-answer=true] .intent-answer{display:none}
+</style>
 <div id="breadcrumb" class="row" aria-label="Навигация"></div><div id="layout" class="layout"><aside id="people" aria-label="Пользователи" hidden></aside><article id="detail"><h2>Компании</h2><p class="empty">Ожидаю список подключений…</p></article></div>
 <footer><button id="use-context" class="quiet" hidden>Работать в этом контексте</button> <button id="clear-context" class="quiet" hidden>Снять закрепление</button><div id="status" role="status" aria-live="polite">Подключение к MCP host…</div><div id="installation" class="muted">UI ${packageInfo.version} · MCP ещё не проверен</div></footer></main>
 <script>
@@ -22,6 +29,7 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
   let sourceRefs = [], contextWanted = null, contextRunning = false, contextRevision = 0, pinnedScope = null;
   let selectedMessageIds = [], activityData = null;
   let installation = null;
+  let personalView = {}, viewMode = 'custom', viewWarning = '', viewReading = false;
   const peopleByAgent = new Map();
   const send = value => window.parent.postMessage(value, '*');
   function request(method, params) {
@@ -34,6 +42,32 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
   function node(tag, text, className) { const item = document.createElement(tag); item.textContent = text; if (className) item.className = className; return item; }
   function button(text, action, style = 'choice') { const b = node('button', text, style); b.type = 'button'; b.disabled = !ready; b.addEventListener('click', action); return b; }
   function note(parent, text) { parent.append(node('p', text, 'muted')); }
+  function applyView() {
+    const v = viewMode === 'custom' && !viewWarning ? personalView : {};
+    document.documentElement.style.colorScheme = ['light','dark'].includes(v.theme) ? v.theme : 'light dark';
+    document.body.dataset.density = v.density === 'compact' ? 'compact' : 'comfortable';
+    document.body.style.setProperty('--sidebar-width', (Number.isInteger(v.sidebarWidth) && v.sidebarWidth >= 180 && v.sidebarWidth <= 360 ? v.sidebarWidth : 225) + 'px');
+    for (const key of ['Date','Duration','Answer']) document.body.dataset['hide' + key] = String(v['show' + key] === false);
+    const order = Array.isArray(v.tabOrder) ? v.tabOrder : [], hidden = Array.isArray(v.hiddenTabs) ? v.hiddenTabs : [];
+    document.querySelectorAll('[data-view-tab]').forEach((b,index) => {
+      const id = b.dataset.viewTab, position = order.indexOf(id);
+      b.style.order = String(position < 0 ? order.length + index : position);
+      b.hidden = hidden.includes(id) && id !== tab;
+    });
+    el('view-standard').setAttribute('aria-pressed', String(viewMode === 'standard' || !!viewWarning));
+    el('view-custom').setAttribute('aria-pressed', String(viewMode === 'custom' && !viewWarning));
+    el('view-note').textContent = viewWarning || (Object.keys(personalView).length ? '' : 'Опишите желаемый вид в чате с Codex.');
+  }
+  async function refreshView() {
+    if (!ready || viewReading || document.hidden) return;
+    viewReading = true;
+    try {
+      const data = await call('workspace_view_read', {});
+      if (!data.overrides || typeof data.overrides !== 'object') throw new Error('invalid_view');
+      personalView = data.overrides; viewWarning = data.warning || ''; applyView();
+    } catch { viewWarning = 'Личный вид недоступен. Показан стандартный; повторная проверка автоматическая.'; applyView(); }
+    finally { viewReading = false; }
+  }
   function json(parent, value) { parent.append(node('pre', JSON.stringify(value, null, 2))); }
   const agentName = a => a?.name || a?.id || 'Все агенты';
   const username = p => typeof p?.username === 'string' && p.username.trim() ? '@' + p.username.trim().replace(/^@+/, '') : '';
@@ -116,7 +150,7 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
   async function load(parent, action, render) {
     if (!parent.isConnected) return;
     const version = generation, busy = node('p', 'Читаю…', 'muted'); parent.append(busy);
-    try { const data = await action(); if (version !== generation || !parent.isConnected) return; busy.remove(); render(data); }
+    try { const data = await action(); if (version !== generation || !parent.isConnected) return; render(data); busy.remove(); }
     catch (error) {
       if (version !== generation || !parent.isConnected) return;
       busy.textContent = error.message;
@@ -235,12 +269,14 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
     const toggle = button('Пользователи ▾', () => { el('people').hidden = !el('people').hidden; }, 'quiet'); toggle.id = 'people-toggle'; detail.append(toggle);
     detail.append(node('h2', agentName(agent) + (person ? ' / ' + userName(person) : '')));
     const tabs = node('div', '', 'row');
-    [...(company.runtime === 'core' ? [['activity','Интенты'],['messages','Сообщения']] : []),['dialogues','Сессии'],['context','Контекст'],['settings',agent ? 'Настройки агента' : 'Агенты и настройки']].forEach(([id,label]) => {
-      const b = button(label, () => { tab = id; selectContext(); renderTab(); }, 'quiet'); b.setAttribute('aria-current', String(tab === id)); tabs.append(b);
+    [...(company.runtime === 'core' ? [['activity','Интенты'],['messages','Сообщения'],['deferred','Отложенные']] : []),['dialogues','Сессии'],['context','Контекст'],['settings',agent ? 'Настройки агента' : 'Агенты и настройки']].forEach(([id,label]) => {
+      const b = button(label, () => { tab = id; selectContext(); renderTab(); }, 'quiet'); b.dataset.viewTab = id; b.setAttribute('aria-current', String(tab === id)); tabs.append(b);
     }); detail.append(tabs); const body = node('div', ''); detail.append(body);
     if (tab === 'activity' || tab === 'messages') activity(body);
     else if (tab === 'dialogues') { if (conversation) history(body, conversation); else conversations(body); }
+    else if (tab === 'deferred') deferred(body);
     else if (tab === 'context') contextView(body); else settings(body);
+    applyView();
   }
   function openConversation(c, knownPerson, messageIds = []) {
     if (company.runtime === 'core') {
@@ -260,7 +296,7 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
       const summary = node('summary',''); box.append(summary);
       const a = agents.find(a=>a.id === e.agentId) || {id:e.agentId};
       const meta = node('div','','intent-meta');
-      meta.append(node('span',userName({userId:e.userId,displayName:e.userName,username:e.username}) + ' → ' + agentName(a)),node('span',dateLabel(e.lastActive)));
+      meta.append(node('span',userName({userId:e.userId,displayName:e.userName,username:e.username}) + ' → ' + agentName(a)),node('span',dateLabel(e.lastActive),'intent-date'));
       summary.append(meta,node('div',title,'intent-title'));
       const replies = e.messages.filter(m=>m.role === 'assistant');
       const answer = replies.at(-1);
@@ -270,7 +306,7 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
       const ms = !e.requestMissing && replies.length ? Date.parse(replies[0].ts)-Date.parse(e.startedAt) : NaN;
       if (Number.isFinite(ms) && ms >= 0) {
         const seconds = Math.round(ms/1000);
-        facts.append(document.createTextNode(' · До ответа: ' + (seconds < 60 ? seconds + ' с' : Math.floor(seconds/60) + ' мин' + (seconds%60 ? ' ' + seconds%60 + ' с' : ''))));
+        facts.append(node('span',' · До ответа: ' + (seconds < 60 ? seconds + ' с' : Math.floor(seconds/60) + ' мин' + (seconds%60 ? ' ' + seconds%60 + ' с' : '')),'intent-duration'));
       }
       bottom.append(facts,node('span','Подробнее ›','intent-open')); summary.append(bottom);
       const body = node('div','','sources'); box.append(body);
@@ -421,11 +457,20 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
     section(parent, '7 · Пользователь, беседа и незавершённое', body => {
       if (!person) { note(body, 'Выберите пользователя слева. Личные контексты разных людей не смешиваются.'); return; }
       note(body, userName(person) + ' · ID ' + person.userId); inventory(body, 'user_context', 'Документы пользователя');
-      section(body, 'Напоминания', child => void load(child, () => call('reminders_read', { ...base(), user_id:String(person.userId) }), data => { json(child, data.reminders); note(child, 'Настроено ≠ выполнено и доставлено.'); }));
       if (conversation) section(body, 'Контекст выбранной беседы', child => void load(child, () => call('conversation_read', { instance_id:company.instanceId, session_key:conversation.sessionKey, limit:10 }), data => {
         if (data.context) { json(child, data.context); note(child, 'Native source snapshot, не полный скрытый prompt/SDK-контекст. Проверяйте missing/truncated.'); } else note(child, 'Доступна только legacy история; source snapshot недоступен.');
       }));
       else note(body, 'Выберите беседу в «Диалогах», затем вернитесь для source snapshot.'); note(body, 'Отдельный полный реестр файлов, compact и pending effects этим интерфейсом не заявляется.');
+    });
+  }
+  function deferred(parent) {
+    if (!agent || !person) { note(parent, 'Выберите агента и пользователя слева, чтобы увидеть его отложенные задачи. Общий список по всем пользователям здесь не загружается.'); return; }
+    if (company.runtime !== 'core') { note(parent, 'Отложенные задачи этого инстанса пока недоступны в этой вкладке.'); return; }
+    note(parent, 'Напоминания выбранного пользователя. Настроено ≠ выполнено и доставлено.');
+    void load(parent, () => call('reminders_read', { ...base(), user_id:String(person.userId) }), data => {
+      if (!Array.isArray(data.reminders?.entries)) throw new Error('Список отложенных задач не получен.');
+      if (!data.reminders.entries.length) { note(parent, 'Отложенных задач для этого пользователя нет.'); return; }
+      json(parent, data.reminders);
     });
   }
   function settings(parent) {
@@ -444,11 +489,16 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
     else if (message.method === 'ping' && message.id !== undefined) send({ jsonrpc:'2.0', id:message.id, result:{} });
   });
   el('use-context').addEventListener('click', () => selectContext(true));
+  for (const mode of ['standard','custom']) el('view-' + mode).addEventListener('click', () => { viewMode = mode; applyView(); });
+  setInterval(() => void refreshView(), 5000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) void refreshView(); });
   el('clear-context').addEventListener('click', () => selectContext(true, {source:'operator_view_selection', instance_id:null, view:'none', sources:[], note:'Selection cleared, not an instruction to erase chat history or approval to act. Choose an exact subject again before any action.'}));
   el('refresh').addEventListener('click', () => { company = agent = person = conversation = null; page = 'companies'; transition(); chrome(); detail.replaceChildren(); void load(detail, () => call('fleet_list', {}), renderFleet); });
   request('ui/initialize', { protocolVersion:'2026-01-26', appInfo:{ name:'TeamON Operator', version:'2' }, appCapabilities:{ availableDisplayModes:['inline'] } }).then(host => {
     if (host.protocolVersion !== '2026-01-26') throw new Error('Версия MCP Apps не поддержана. Используйте текстовые инструменты.');
     ready = !!host.hostCapabilities?.serverTools; contextSupport = !!host.hostCapabilities?.updateModelContext?.structuredContent;
+    el('view-standard').disabled = el('view-custom').disabled = !ready;
+    void refreshView();
     el('refresh').disabled = !ready; send({ jsonrpc:'2.0', method:'ui/notifications/initialized', params:{} });
     status.textContent = ready ? 'Только чтение. Поручения и публикация — отдельно через диалог с Operator.' : 'Host не поддерживает интерактивное чтение. MCP tools доступны текстом.';
     if (companies.length) showCompanies();
