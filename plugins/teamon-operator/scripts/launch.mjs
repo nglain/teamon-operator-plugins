@@ -2,9 +2,9 @@
 // No dependencies before the preflight. No downloads or host config writes.
 import { access } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-const [major, minor] = process.versions.node.split(".").map(Number);
-if (major !== 24 || minor < 15) {
-  process.stderr.write("TeamON Operator: нужен Node >=24.15.0 <25. Настройте Node в PATH MCP-клиента и переподключите плагин.\n");
+const [major, minor, patch] = process.versions.node.split(".").map(Number);
+if (major !== 24 || minor < 14 || (minor === 14 && patch < 1)) {
+  process.stderr.write(`TeamON Operator: обнаружен Node ${process.versions.node}; нужен >=24.14.1 <25. Настройте Node в PATH MCP-клиента и переподключите плагин.\n`);
   process.exitCode = 1;
 } else {
   const cli = new URL("../runtime/src/cli.mjs", import.meta.url);

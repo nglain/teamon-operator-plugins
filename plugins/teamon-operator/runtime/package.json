@@ -1,6 +1,6 @@
 {
   "name": "@teamon/operator-mcp",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "private": true,
   "type": "module",
   "bin": {
@@ -21,7 +21,7 @@
     "start": "node src/cli.mjs serve"
   },
   "engines": {
-    "node": ">=24.15.0 <25"
+    "node": ">=24.14.1 <25"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",
