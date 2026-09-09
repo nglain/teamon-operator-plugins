@@ -60,7 +60,7 @@ if (["--version", "version"].includes(command)) {
     process.exitCode = 1;
   }
 } else if (command === "serve") {
-  const installation=await readInstallation(configPath);
+  const installation=await readInstallation(configPath,{deferAccount:true});
   if(installation.config) await serveOperatorMcp(installation.config);
   else await serveUnconfigured(configPath,installation.state);
 } else if (command === "doctor") {

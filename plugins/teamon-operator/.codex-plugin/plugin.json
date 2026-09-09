@@ -1,6 +1,6 @@
 {
   "name": "teamon-operator",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Локальные инструменты и пульт оператора TeamON. Подключения к компаниям настраиваются отдельно.",
   "author": {
     "name": "TeamON"

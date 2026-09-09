@@ -150,20 +150,39 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
   }
   function showCompanies() {
     company = agent = person = conversation = null; agents = []; page = 'companies'; transition(); chrome();
-    detail.replaceChildren(node('h2', 'Компании')); note(detail, 'Выберите инстанс. Наличие подключения не означает, что сервис и все сценарии исправны.');
-    if(installation?.accountLogin) detail.append(button(installation.account ? 'Войти другим аккаунтом' : 'Войти в TeamON', async () => {
+    detail.replaceChildren(node('h2', companies.length ? 'Компании' : installation?.account ? 'Ваши компании' : 'Добро пожаловать в TeamON'));
+    note(detail, companies.length ? 'Выберите компанию, затем агента и нужную беседу.' : installation?.account
+      ? 'Вы уже вошли. Компании назначает администратор Master; повторный вход не нужен.'
+      : 'Войдите своим аккаунтом → откройте назначенную компанию → выберите агента.');
+    const loginFeedback=node('div');
+    if(installation?.accountLogin) detail.append(button(installation.account ? 'Войти другим аккаунтом' : 'Войти в TeamON', async event => {
+      const trigger=event.currentTarget,version=generation;
+      trigger.disabled=true;
+      loginFeedback.replaceChildren(node('p','Открываю вход…','muted'));
       try {
         const data=await call('account_login_open',{}); const url=new URL(data.url);
+        if(version!==generation || !trigger.isConnected)return;
         if(url.origin!=='https://master.nglain.com' || url.pathname!=='/operator/authorize')throw new Error('Неожиданный адрес входа');
-        const link=node('a','Открыть вход в браузере');link.href=url.href;link.target='_blank';link.rel='noreferrer noopener';detail.append(link);
-        note(detail,'После входа переподключите MCP. Пароль вводите только в браузере Master, не в чате.');
+        const link=node('a','Открыть вход в браузере');link.href=url.href;link.target='_blank';link.rel='noreferrer noopener';loginFeedback.replaceChildren(link);
+        note(loginFeedback,installation?.state === 'configured' && !installation.account
+          ? 'После входа через Master переподключите MCP и откройте новый пульт. Прежние прямые подключения сохранены отдельно. Пароль не отправляйте в чат.'
+          : 'Войдите на странице Master, затем вернитесь сюда и нажмите «Показать мои компании». Пароль не нужно отправлять в чат.');
         try{await request('ui/open-link',{url:url.href});}catch{}
-      }catch{note(detail,'Не удалось начать вход. Переподключите Operator и повторите.');}
+      }catch{if(version===generation && trigger.isConnected)loginFeedback.replaceChildren(node('p','Не удалось начать вход. Повторите попытку. Если ошибка сохраняется, переподключите Operator.','muted'));}
+      finally{if(trigger.isConnected)trigger.disabled=!ready;}
+    }));
+    if(installation?.accountLogin)detail.append(loginFeedback);
+    if(installation?.accountLogin) detail.append(button('Показать мои компании', () => {
+      transition(); void load(detail, () => call('fleet_list',{}), renderFleet);
     }));
     const grid = node('div', '', 'grid'); companies.forEach(c => grid.append(companyCard(c))); detail.append(grid);
     if (!companies.length) {
       note(detail, installation?.message || 'Нет настроенных подключений. Добавьте адрес компании и её ключ через защищённый setup.');
-      if (Array.isArray(installation?.setupCommand)) detail.append(node('pre', installation.setupCommand.map(value => "'" + String(value).replaceAll("'", "'\\''") + "'").join(' ')));
+      if (installation?.state === 'not_configured' && Array.isArray(installation?.setupCommand)) {
+        const advanced=node('details'); advanced.append(node('summary','Ручное подключение — для администратора'),
+          node('pre',installation.setupCommand.map(value => "'" + String(value).replaceAll("'", "'\\''") + "'").join(' ')));
+        detail.append(advanced);
+      }
     }
   }
   function agentCard(a, action) {

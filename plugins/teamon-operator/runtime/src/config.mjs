@@ -57,7 +57,7 @@ async function instanceSpec(file, instanceId) {
 
 function coreDashboard(value, label, base) {
   const input = object(value, label);
-  exactKeys(input, ["baseUrl", "tokenEnv", "tokenFile", "accountFile", "gatewayInstanceId"], label);
+  exactKeys(input, ["baseUrl", "tokenEnv", "tokenFile", "accountFile", "accountFingerprint", "gatewayInstanceId"], label);
   let url;
   try { url = new URL(text(input.baseUrl, `${label}.baseUrl`, 1000)); }
   catch { throw new Error(`${label}.baseUrl must be an HTTPS origin or loopback HTTP tunnel`); }
@@ -66,9 +66,11 @@ function coreDashboard(value, label, base) {
     || url.username || url.password || url.search || url.hash || url.pathname !== "/") {
     throw new Error(`${label}.baseUrl must be an HTTPS origin or loopback HTTP tunnel without credentials, path or query`);
   }
-  if (input.accountFile !== undefined || input.gatewayInstanceId !== undefined) {
+  if (input.accountFile !== undefined || input.gatewayInstanceId !== undefined || input.accountFingerprint !== undefined) {
     if (input.tokenEnv !== undefined || input.tokenFile !== undefined || url.origin !== MASTER_ORIGIN) throw new Error('invalid account gateway binding');
-    return Object.freeze({baseUrl:url.origin,accountFile:path.resolve(base,text(input.accountFile,'accountFile',1000)),gatewayInstanceId:id(input.gatewayInstanceId,'gatewayInstanceId')});
+    if (!/^[a-f0-9]{64}$/u.test(input.accountFingerprint || '')) throw new Error('invalid account session binding');
+    return Object.freeze({baseUrl:url.origin,accountFile:path.resolve(base,text(input.accountFile,'accountFile',1000)),
+      accountFingerprint:input.accountFingerprint,gatewayInstanceId:id(input.gatewayInstanceId,'gatewayInstanceId')});
   }
   if ((input.tokenEnv !== undefined) === (input.tokenFile !== undefined)) throw new Error(`${label} requires exactly one credential reference: tokenEnv or tokenFile`);
   if (input.tokenFile !== undefined) return Object.freeze({

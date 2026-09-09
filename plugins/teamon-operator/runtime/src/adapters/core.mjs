@@ -169,7 +169,10 @@ export class CoreDashboard {
   }
 
   binding(instance) {
-    return digest({ instanceId: instance.id, core: instance.core, actorId: this.operator?.id });
+    // Login freshness is checked by coreCredential. A same-person re-login must
+    // not orphan existing receipts or change pre-0.2.7 operation bindings.
+    const { accountFingerprint, ...core } = instance.core;
+    return digest({ instanceId: instance.id, core, actorId: this.operator?.id });
   }
 
   async accessInspect(instance) {

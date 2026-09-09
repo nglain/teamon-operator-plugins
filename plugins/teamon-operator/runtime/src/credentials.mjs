@@ -2,12 +2,14 @@ import { constants } from "node:fs";
 import { open } from "node:fs/promises";
 import { adapterError } from "./compatibility.mjs";
 import { readAccountSession } from './account-session.mjs';
+import { createHash } from 'node:crypto';
 
 export async function coreCredential(instance, env = process.env) {
   let token;
   if (instance.core.accountFile) {
     const session=await readAccountSession(instance.core.accountFile);
     if(Date.parse(session.expiresAt)<=Date.now() || session.origin!==instance.core.baseUrl) throw new Error('account_login_required');
+    if(createHash('sha256').update(session.accessToken).digest('hex') !== instance.core.accountFingerprint) throw new Error('account_changed_refresh_required');
     token=session.accessToken;
   } else if (instance.core.tokenFile) {
     let handle;
