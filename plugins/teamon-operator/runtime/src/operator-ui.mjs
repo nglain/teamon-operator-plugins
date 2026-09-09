@@ -151,6 +151,15 @@ export const OPERATOR_UI_HTML = String.raw`<!doctype html>
   function showCompanies() {
     company = agent = person = conversation = null; agents = []; page = 'companies'; transition(); chrome();
     detail.replaceChildren(node('h2', 'Компании')); note(detail, 'Выберите инстанс. Наличие подключения не означает, что сервис и все сценарии исправны.');
+    if(installation?.accountLogin) detail.append(button(installation.account ? 'Войти другим аккаунтом' : 'Войти в TeamON', async () => {
+      try {
+        const data=await call('account_login_open',{}); const url=new URL(data.url);
+        if(url.origin!=='https://master.nglain.com' || url.pathname!=='/operator/authorize')throw new Error('Неожиданный адрес входа');
+        const link=node('a','Открыть вход в браузере');link.href=url.href;link.target='_blank';link.rel='noreferrer noopener';detail.append(link);
+        note(detail,'После входа переподключите MCP. Пароль вводите только в браузере Master, не в чате.');
+        try{await request('ui/open-link',{url:url.href});}catch{}
+      }catch{note(detail,'Не удалось начать вход. Переподключите Operator и повторите.');}
+    }));
     const grid = node('div', '', 'grid'); companies.forEach(c => grid.append(companyCard(c))); detail.append(grid);
     if (!companies.length) {
       note(detail, installation?.message || 'Нет настроенных подключений. Добавьте адрес компании и её ключ через защищённый setup.');

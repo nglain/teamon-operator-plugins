@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { MASTER_ORIGIN } from './account-session.mjs';
 
 const SAFE_ID = /^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$/u;
 
@@ -56,7 +57,7 @@ async function instanceSpec(file, instanceId) {
 
 function coreDashboard(value, label, base) {
   const input = object(value, label);
-  exactKeys(input, ["baseUrl", "tokenEnv", "tokenFile"], label);
+  exactKeys(input, ["baseUrl", "tokenEnv", "tokenFile", "accountFile", "gatewayInstanceId"], label);
   let url;
   try { url = new URL(text(input.baseUrl, `${label}.baseUrl`, 1000)); }
   catch { throw new Error(`${label}.baseUrl must be an HTTPS origin or loopback HTTP tunnel`); }
@@ -64,6 +65,10 @@ function coreDashboard(value, label, base) {
   if ((url.protocol !== "https:" && !(url.protocol === "http:" && loopback))
     || url.username || url.password || url.search || url.hash || url.pathname !== "/") {
     throw new Error(`${label}.baseUrl must be an HTTPS origin or loopback HTTP tunnel without credentials, path or query`);
+  }
+  if (input.accountFile !== undefined || input.gatewayInstanceId !== undefined) {
+    if (input.tokenEnv !== undefined || input.tokenFile !== undefined || url.origin !== MASTER_ORIGIN) throw new Error('invalid account gateway binding');
+    return Object.freeze({baseUrl:url.origin,accountFile:path.resolve(base,text(input.accountFile,'accountFile',1000)),gatewayInstanceId:id(input.gatewayInstanceId,'gatewayInstanceId')});
   }
   if ((input.tokenEnv !== undefined) === (input.tokenFile !== undefined)) throw new Error(`${label} requires exactly one credential reference: tokenEnv or tokenFile`);
   if (input.tokenFile !== undefined) return Object.freeze({
@@ -78,7 +83,7 @@ export async function loadOperatorConfig(file) {
   return parseOperatorConfig(JSON.parse(await readFile(file, "utf8")), file);
 }
 
-export async function parseOperatorConfig(input, file) {
+export async function parseOperatorConfig(input, file, { allowEmptyInstances = false } = {}) {
   const absolute = path.resolve(file);
   const base = path.dirname(absolute);
   const value = object(input, "operator config");
@@ -88,7 +93,7 @@ export async function parseOperatorConfig(input, file) {
   exactKeys(operator, ["id", "displayName"], "operator");
   const hubsInput = Array.isArray(value.hubs) ? value.hubs : [];
   const instancesInput = Array.isArray(value.instances) ? value.instances : [];
-  if (instancesInput.length === 0) throw new Error("at least one Instance is required");
+  if (instancesInput.length === 0 && !allowEmptyInstances) throw new Error("at least one Instance is required");
 
   const hubs = hubsInput.map((entry, index) => {
     const hub = object(entry, `hubs[${index}]`);

@@ -9,6 +9,8 @@ import { z } from "zod";
 import packageInfo from "../package.json" with { type: "json" };
 import { parseOperatorConfig } from "./config.mjs";
 import { OPERATOR_UI_HTML, OPERATOR_UI_URI, operatorUiResource } from "./operator-ui.mjs";
+import { readAccountConfig } from './account-config.mjs';
+import { registerAccountLogin } from './account-login.mjs';
 
 export const ACTIVE_BUILD = Object.freeze({
   version: packageInfo.version,
@@ -22,6 +24,13 @@ export function installationPath(explicit, env = process.env, userHome = os.home
 
 // Only an absent registry is onboarding. A missing Staff spec or broken JSON is an error.
 export async function readInstallation(configPath) {
+  try {
+    const account=await readAccountConfig(configPath);
+    if(account)return {state:'configured',config:account};
+  } catch (error) {
+    // Never fall back to a direct company credential after central auth fails.
+    return {state:error.message==='account_login_required'?'account_login_required':'account_service_unavailable'};
+  }
   let raw;
   try { raw = await readFile(configPath, "utf8"); }
   catch (error) {
@@ -37,9 +46,9 @@ export async function readInstallation(configPath) {
 }
 
 export function installationStatus(state = "configured", configPath) {
-  return { ...ACTIVE_BUILD, state, liveChecked: false,
-    ...(state === "not_configured" ? {
-      message: "Компания ещё не подключена. Запустите setup в своём терминале; ключ вводится скрыто, не в чате. Затем переподключите MCP и откройте новый пульт.",
+  return { ...ACTIVE_BUILD, state, liveChecked: false, accountLogin: !!configPath,
+    ...(state !== "configured" ? {
+      message: "Войдите в TeamON личным логином и паролем в браузере. Компании назначает администратор в Master. Если вход уже был выполнен, проверьте соединение с Master или войдите снова. Ручной setup остаётся для отдельных прямых подключений.",
       setupCommand: [process.execPath, fileURLToPath(new URL("./cli.mjs", import.meta.url)), "setup", "--config", configPath]
     } : {}),
     note: "Версия относится к этому запущенному MCP. Доступ к компании и выполнение действий проверяются отдельно."
@@ -54,12 +63,13 @@ export function registerInstallationStatus(server, status) {
   }, async () => ({ content: [{ type: "text", text: JSON.stringify(status) }], structuredContent: status }));
 }
 
-export function createUnconfiguredMcpServer(configPath) {
-  const status = installationStatus("not_configured", configPath);
+export function createUnconfiguredMcpServer(configPath,state='not_configured') {
+  const status = installationStatus(state, configPath);
   const server = new McpServer({ name: "teamon-operator", version: packageInfo.version }, {
-    instructions: "TeamON Operator is installed but no company is connected. Use fleet_list to show setup instructions. Ask the person to run the protected local setup command. Never ask for keys in chat or tools; never invent company access. Reconnect after setup. No company tools are available in this startup state."
+    instructions: "TeamON Operator needs a connection. Show fleet_list. On explicit request to sign in, call account_login_open and open its browser URL. Passwords are entered only on Master, never in chat or tool arguments. The administrator assigns companies in Master Users. Reconnect after login. Manual protected local setup is a separate advanced option; never fall back to it after central authorization fails. No company access is implied by plugin installation."
   });
   registerInstallationStatus(server, status);
+  registerAccountLogin(server,configPath);
   server.registerResource("operator-companies", OPERATOR_UI_URI, { mimeType: "text/html;profile=mcp-app" }, async () => operatorUiResource());
   const fleet = server.registerTool("fleet_list", {
     description: "Show the empty Operator workspace and protected setup instructions; does not contact a company.",
@@ -77,8 +87,8 @@ export function createUnconfiguredMcpServer(configPath) {
   return server;
 }
 
-export async function serveUnconfigured(configPath) {
-  const server = createUnconfiguredMcpServer(configPath);
+export async function serveUnconfigured(configPath,state) {
+  const server = createUnconfiguredMcpServer(configPath,state);
   await server.connect(new StdioServerTransport());
   return server;
 }

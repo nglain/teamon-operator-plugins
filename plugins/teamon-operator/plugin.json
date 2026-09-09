@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "teamon-operator",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Локальные инструменты и пульт оператора TeamON. Подключения к компаниям настраиваются отдельно.",
   "author": {
     "name": "TeamON"

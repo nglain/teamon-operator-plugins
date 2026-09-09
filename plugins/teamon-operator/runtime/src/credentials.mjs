@@ -1,10 +1,15 @@
 import { constants } from "node:fs";
 import { open } from "node:fs/promises";
 import { adapterError } from "./compatibility.mjs";
+import { readAccountSession } from './account-session.mjs';
 
 export async function coreCredential(instance, env = process.env) {
   let token;
-  if (instance.core.tokenFile) {
+  if (instance.core.accountFile) {
+    const session=await readAccountSession(instance.core.accountFile);
+    if(Date.parse(session.expiresAt)<=Date.now() || session.origin!==instance.core.baseUrl) throw new Error('account_login_required');
+    token=session.accessToken;
+  } else if (instance.core.tokenFile) {
     let handle;
     try {
       handle = await open(instance.core.tokenFile, constants.O_RDONLY | constants.O_NOFOLLOW);

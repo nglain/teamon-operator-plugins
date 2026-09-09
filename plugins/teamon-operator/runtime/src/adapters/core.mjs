@@ -84,7 +84,7 @@ function agentSummary(agent) {
   };
 }
 function endpointBinding(instance) {
-  return digest({ instanceId: instance.id, baseUrl: instance.core.baseUrl });
+  return digest({ instanceId: instance.id, baseUrl: instance.core.baseUrl, ...(instance.core.gatewayInstanceId ? {gatewayInstanceId:instance.core.gatewayInstanceId} : {}) });
 }
 function conversationRef(instance, event) {
   return `core.v1.${Buffer.from(JSON.stringify({
@@ -122,7 +122,8 @@ export class CoreDashboard {
 
   async #request(instance, pathname, params = {}, body, timeoutMs = this.timeoutMs) {
     const token = await coreCredential(instance, this.env);
-    const url = new URL(pathname, `${instance.core.baseUrl}/`);
+    const prefix=instance.core.gatewayInstanceId ? `/api/operator/instances/${encodeURIComponent(instance.core.gatewayInstanceId)}/core` : '';
+    const url = new URL(prefix + pathname, `${instance.core.baseUrl}/`);
     for (const [key, value] of Object.entries(params)) if (value !== undefined) url.searchParams.set(key, String(value));
     let response;
     try {

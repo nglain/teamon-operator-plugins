@@ -59,8 +59,10 @@ if (["--version", "version"].includes(command)) {
     process.stderr.write(`Подключение не завершено (${error.name === "AbortError" ? "cancelled" : error.setupProblem || probeFailure(error).reason}). ${messages[error.setupProblem] || "Проверьте адрес, ключ, ID компании и отсутствие уже существующего подключения."} Ключ не отправляйте в чат.\n`);
     process.exitCode = 1;
   }
-} else if (command === "serve" && (await readInstallation(configPath)).state === "not_configured") {
-  await serveUnconfigured(configPath);
+} else if (command === "serve") {
+  const installation=await readInstallation(configPath);
+  if(installation.config) await serveOperatorMcp(installation.config);
+  else await serveUnconfigured(configPath,installation.state);
 } else if (command === "doctor") {
   try {
     const installation = await readInstallation(configPath);
@@ -74,7 +76,7 @@ if (["--version", "version"].includes(command)) {
       if (process.argv.includes("--live") && (!id || !config.instances.some(instance => instance.id === id))) {
         throw new Error("--live requires one configured --instance ID");
       }
-      const report = { ok: true, ...status, validation: "local_config_only", operator: config.operator, hubs: config.hubs.length,
+      const report = { ok: true, ...status, validation: config.account ? "account_discovery_not_instance_health" : "local_config_only", operator: config.operator, hubs: config.hubs.length,
         instances: config.instances.map(({ id, runtime, hubId, desired }) => runtime === "core"
           ? { id, runtime: "core", mode: "native_operator_not_checked", liveChecked: false }
           : { id, hubId, application: desired.release.application, version: desired.release.version, liveChecked: false }) };
@@ -111,7 +113,8 @@ if (["--version", "version"].includes(command)) {
     next: ["codex", "mcp", "add", "teamon-operator", "--", process.execPath, fileURLToPath(import.meta.url), "serve", "--config", connected.configPath]
   }, null, 2)}\n`);
 } else {
-  const config = await loadOperatorConfig(configPath);
+  const config = (await readInstallation(configPath)).config;
+  if(!config) throw new Error('Account login or protected local setup required');
 
   if (command === "credential-read" || command === "credential-store") {
     if (process.argv.some(arg => /^--(?:entries|token|password|secret)(?:=|$)/u.test(arg))) throw new Error("inline secrets are not allowed; use protected input");
@@ -138,8 +141,6 @@ if (["--version", "version"].includes(command)) {
         throw error;
       } finally { entries = undefined; }
     }
-  } else if (command === "serve") {
-    await serveOperatorMcp(config);
   } else {
     throw new Error(`unknown command: ${command}`);
   }
