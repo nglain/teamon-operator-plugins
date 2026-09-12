@@ -1,0 +1,5 @@
+{
+  "mcpServers": {
+    "teamon-installer": {"type":"stdio","command":"node","args":["${PLUGIN_ROOT}/runtime/installer/mcp-server.mjs"]}
+  }
+}

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Установка TeamON Operator</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:8px;background:transparent;color:#332d22;font:15px/1.5 system-ui,-apple-system,sans-serif;color-scheme:light}
+main{padding:30px;max-width:680px;margin:auto;background:#fffdf8;border:1px solid #e9dfca;border-radius:24px;box-shadow:0 8px 30px #5a471008}
+small{color:#a47a2b;letter-spacing:.2em;font-weight:650;font-size:12px}
+h1{font-size:29px;line-height:1.2;letter-spacing:-.025em;font-weight:600;margin:24px 0 10px}p{color:#877960;margin:10px 0}
+.meter{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:28px 0 18px}
+#percent{font-size:76px;letter-spacing:-.065em;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.timing{text-align:right;color:#968770;font-size:11px}.timing #clock{display:block;font-size:22px;color:#71644c;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.track{height:14px;border-radius:10px;background:#efe7d8;overflow:hidden;margin:0 0 20px}#bar{height:100%;width:0;background:linear-gradient(90deg,#a47a2b,#dfbc65);border-radius:inherit}
+ol{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;list-style:none;padding:0;margin:0 0 26px}
+li{color:#978b77;font-size:12px;text-align:center;min-width:0;overflow-wrap:anywhere}li.active{color:#805b19;font-weight:600}li.done{color:#8c6927}
+li:before{content:attr(data-mark);display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;margin:0 auto 8px;background:#f1ecdf;color:#9a8a6a;font-size:14px;font-weight:500}
+li.done:before{background:#ad8433;color:white}li.active:before{background:#f0dfb7;color:#835e1c;box-shadow:0 0 0 3px #fffdf8,0 0 0 4px #ddc58e}
+footer{border-top:1px solid #e7d8b9;padding-top:18px}#phase{color:#a47a2b;font-size:11px;font-weight:650;letter-spacing:.07em;margin:0 0 7px}
+#message{min-height:44px;margin:0 0 10px;color:#71644c}button{border:0;border-radius:11px;background:#382f20;color:#fff9eb;font:500 15px system-ui;padding:13px 23px;min-height:44px;cursor:pointer}
+button:hover{background:#57462a}button:disabled{opacity:.45;cursor:default}[hidden]{display:none!important}
+#notice{font-size:11px;letter-spacing:0;color:#988b75;margin:13px 0 0}button:focus-visible{outline:3px solid #b78b36;outline-offset:3px}
+main[data-state=disconnected] #phase,main[data-state=failed] #phase,main[data-state=unavailable] #phase{color:#9b532a}
+@media(max-width:440px){body{padding:5px}main{padding:24px 18px;border-radius:21px}h1{font-size:26px}#percent{font-size:64px}li{font-size:10px}ol{gap:4px}.timing #clock{font-size:20px}}
+@media(max-width:380px){ol{gap:0}li{white-space:nowrap;overflow-wrap:normal}}
+</style></head><body><main data-state="connecting" data-ui-revision="gold-v3">
+<small>TEAMON / OPERATOR</small><h1 id="title">Готовим рабочее место</h1>
+<p id="subtitle">Примерно две минуты — и можно начинать.</p>
+<div class="meter"><span id="percent">0%</span><span class="timing">Время установки<span id="clock">00:00</span></span></div>
+<div class="track" role="progressbar" aria-label="Установка" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="bar"></div></div>
+<ol id="steps"><li data-mark="1">Среда</li><li data-mark="2">Каталог</li><li data-mark="3">Пакет</li><li data-mark="4">Включение</li><li data-mark="5">Проверка</li></ol>
+<footer><p id="phase">ПОДКЛЮЧЕНИЕ ЭКРАНА</p><p id="message" role="status">Связываемся с установщиком. Установка ещё не началась.</p>
+<button id="install" disabled>Установить Operator</button><button id="recover" hidden>Проверить состояние</button><button id="begin" hidden>Начать</button>
+<p id="notice">Плавное движение — оценка. Галочки — проверенные этапы.</p></footer></main>
+<script>
+(() => {
+  const $=id=>document.getElementById(id), pending=new Map();
+  let nextId=1, current, receivedAt=0, initialized=false, handshakeFailed=false, stale=false, attempted=false, sending=false, stopped=false, polling=false;
+  let pollTimer, displayed=0, elapsedShown=0, lastFrame=performance.now(), finishTween, canMessage=false;
+  const panel=document.querySelector('main');
+  function unavailable(text){panel.dataset.state='unavailable';$('title').textContent='Проверим подключение';$('subtitle').textContent='Установка с этого экрана ещё не запускалась.';$('phase').textContent='ЭКРАН НЕ ПОДКЛЮЧЁН';$('install').disabled=true;
+    $('message').textContent=text;}
+  const initialDeadline=setTimeout(()=>{if(!initialized||!current)unavailable('Не получено состояние установщика. Установка не запускалась с этого экрана. Попросите открыть экран заново в чате.');},12000);
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function notify(method,params){parent.postMessage({jsonrpc:'2.0',method,params},'*');}
+  function rpc(method,params,timeoutMs=8000){return new Promise((resolve,reject)=>{
+    const id=nextId++, timer=setTimeout(()=>{pending.delete(id);reject(new Error('timeout'));},timeoutMs);
+    pending.set(id,{resolve,reject,timer});parent.postMessage({jsonrpc:'2.0',id,method,params},'*');
+  });}
+  async function call(name,args){const r=await rpc('tools/call',{name,arguments:args});if(r.isError||!r.structuredContent)throw new Error('tool failed');return r.structuredContent;}
+  function accept(s){
+    if(handshakeFailed)return;
+    if(!s||typeof s.runId!=='string'||!Number.isInteger(s.revision)||!['ready','running','failed','completed'].includes(s.status)||
+      !Number.isInteger(s.completed)||s.completed<0||s.completed>5||!Number.isInteger(s.active)||s.active< -1||s.active>4||
+      !Array.isArray(s.stages)||s.stages.length!==5||!s.stages.every(x=>typeof x.name==='string'&&Number.isFinite(x.estimateSeconds)&&x.estimateSeconds>0)||
+      !Number.isFinite(s.elapsedMs)||s.elapsedMs<0||!Number.isFinite(s.stageElapsedMs)||s.stageElapsedMs<0||
+      s.status==='completed'&&(s.completed!==5||!/^\d+\.\d+\.\d+$/.test(s.version||'')))throw new Error('invalid state');
+    if(current&&(s.runId!==current.runId||s.revision<current.revision||s.completed<current.completed||
+      current.status==='running'&&s.status==='ready'||
+      ['failed','completed'].includes(current.status)&&s.status!==current.status))return;
+    const previous=current;
+    current=s;receivedAt=performance.now();stale=false;
+    if(initialized)clearTimeout(initialDeadline);
+    panel.dataset.state=initialized?s.status:'connecting';
+    if(s.status!=='ready')attempted=true;
+    $('steps').replaceChildren(...s.stages.map((x,i)=>{const li=document.createElement('li');li.textContent=x.name;
+      li.className=i<s.completed?'done':i===s.active&&s.status==='running'?'active':'';
+      li.dataset.mark=i<s.completed?'✓':String(i+1);return li;}));
+    $('title').textContent=s.status==='completed'?'Можно начинать':s.status==='failed'?'Нужна проверка':'Готовим рабочее место';
+    $('phase').textContent=s.status==='ready'?'ГОТОВО К УСТАНОВКЕ':s.status==='completed'?'УСТАНОВКА ЗАВЕРШЕНА':s.status==='failed'?'УСТАНОВКА ОСТАНОВЛЕНА':s.active<0?'ЗАПУСК УСТАНОВКИ':`ЭТАП ${s.active+1} ИЗ 5`;
+    $('subtitle').textContent=s.demo?'Проверочный прогон — ничего не устанавливается.':s.status==='completed'?(s.elapsedMs<5000?'Проверки завершились быстро. Всё готово.':'Пакет готов. Дальше — вход в TeamON.'):s.status==='failed'?'Без автоматического повтора установки.':'Примерно две минуты — и можно начинать.';
+    $('notice').textContent=s.status==='completed'?'Все пять этапов проверены.':'Плавное движение — оценка. Галочки — проверенные этапы.';
+    $('message').textContent=s.status==='ready'?(attempted?'Запуск не подтверждён. Повторно команду не отправляем; откройте установщик заново после проверки.':'Экран подключён. Можно начать установку.'):
+      s.status==='completed'?`Operator ${s.version} установлен и проверен. Вход в компанию — следующий шаг.`:
+      s.status==='failed'?(s.error?.message||'Результат установки не подтверждён.'):
+      s.active<0?'Подготавливаем установку…':`${s.stages[s.active].name} — выполняется…`;
+    if(!initialized){$('phase').textContent='ПОДКЛЮЧЕНИЕ ЭКРАНА';$('message').textContent='Ожидаем подтверждение подключения к чату. Установка с этого экрана ещё не запускалась.';}
+    $('install').hidden=s.status!=='ready'||attempted;$('install').disabled=!initialized;
+    $('begin').hidden=s.status!=='completed'||s.demo===true;$('recover').hidden=true;
+    if(s.status==='completed'&&previous?.status!=='completed'){
+      // Only a newly observed live completion settles briefly. Reopening a finished
+      // run is a snapshot, never a simulated replay of installation stages.
+      if(previous&&initialized&&!reduced)finishTween={from:displayed,at:performance.now()};
+      else displayed=100;
+    }
+    if(s.status==='completed'||s.status==='failed')elapsedShown=s.elapsedMs;
+    if(s.status==='failed')displayed=Math.max(displayed,Math.min(99,s.completed*20));
+    schedule();paint(performance.now());
+  }
+  function disconnected(){stale=true;clearTimeout(pollTimer);panel.dataset.state='disconnected';$('title').textContent='Связь прервалась';$('phase').textContent='СВЯЗЬ ПРЕРВАНА';
+    $('install').disabled=true;$('recover').hidden=!current||!initialized;
+    $('message').textContent=current?'Не получен свежий статус. Процент и время заморожены. Проверьте состояние — установка повторно не запустится.':'Состояние установщика не получено. Попросите открыть экран заново в чате.';}
+  function schedule(){clearTimeout(pollTimer);if(!stopped&&initialized&&!stale&&current?.status==='running')pollTimer=setTimeout(poll,800);}
+  async function poll(){if(polling||!current||!initialized)return;polling=true;
+    try{accept(await call('installer_status',{runId:current.runId}));}catch{disconnected();}
+    finally{polling=false;schedule();}}
+  function paint(now){
+    const dt=Math.min(100,now-lastFrame);lastFrame=now;
+    if(current){
+      const live=initialized&&current.status==='running'&&!stale;
+      const extra=live?Math.min(2000,Math.max(0,now-receivedAt)):0;
+      let target=current.completed*20;
+      if(live&&current.active===current.completed){const ratio=(current.stageElapsedMs+extra)/(current.stages[current.active].estimateSeconds*1000);
+        target+=18*(1-Math.exp(-ratio));}
+      if(current.status!=='completed')target=Math.min(99,target);
+      if(live)displayed=Math.min(99,Math.max(displayed,reduced?target:displayed+(target-displayed)*Math.min(1,dt/200)));
+      if(finishTween){const t=Math.min(1,Math.max(0,(now-finishTween.at)/700));
+        displayed=finishTween.from+(100-finishTween.from)*(1-Math.pow(1-t,3));
+        if(t===1){displayed=100;finishTween=undefined;}}
+      const value=Math.floor(displayed);
+      $('percent').textContent=value+'%';$('bar').style.width=value+'%';document.querySelector('[role=progressbar]').setAttribute('aria-valuenow',String(value));
+      if(live)elapsedShown=Math.max(elapsedShown,current.elapsedMs+extra);
+      const secs=Math.floor(elapsedShown/1000);$('clock').textContent=String(Math.floor(secs/60)).padStart(2,'0')+':'+String(secs%60).padStart(2,'0');
+    }
+  }
+  function frame(now){paint(now);if(!stopped)requestAnimationFrame(frame);}
+  addEventListener('message',e=>{if(e.source!==parent||e.data?.jsonrpc!=='2.0')return;const m=e.data;
+    if(m.id!==undefined&&pending.has(m.id)){const p=pending.get(m.id);pending.delete(m.id);clearTimeout(p.timer);m.error?p.reject(new Error('host rejected')):p.resolve(m.result);}
+    else if(m.method==='ui/notifications/tool-result'){try{if(m.params?.structuredContent)accept(m.params.structuredContent);}catch{disconnected();}}
+    else if(m.method==='ui/resource-teardown'){stopped=true;clearTimeout(pollTimer);clearTimeout(initialDeadline);parent.postMessage({jsonrpc:'2.0',id:m.id,result:{}},'*');}
+  });
+  $('install').onclick=async()=>{if(!initialized||!current||attempted)return;attempted=true;$('install').disabled=true;
+    panel.dataset.state='starting';$('phase').textContent='ЗАПРОС НА УСТАНОВКУ';$('message').textContent='Ждём подтверждение запуска…';
+    try{accept(await call('installer_start',{runId:current.runId}));}catch{disconnected();}};
+  $('recover').onclick=()=>void poll();
+  $('begin').onclick=async()=>{if(sending||current?.status!=='completed')return;sending=true;$('begin').disabled=true;
+    if(!canMessage){$('message').textContent='Этот чат не поддерживает отправку из карточки. Выберите @TeamON Operator и отправьте «Помоги войти». Установка завершена.';return;}
+    $('begin').textContent='Отправляем…';
+    $('message').textContent='Передаём запрос в этот чат. Если Codex открыл подтверждение, подтвердите отправку.';
+    try{const result=await rpc('ui/message',{role:'user',content:[{type:'text',text:'Установка завершена. Помоги подключить @TeamON Operator в этом чате и войти в TeamON. Не переустанавливай плагин.'}]},60000);
+      if(!result||typeof result!=='object'||result.isError===true)throw new Error('unconfirmed');
+      $('begin').textContent='Запрос передан';
+      $('message').textContent='Codex принял запрос. Ответ появится в чате; если он занят, запрос ожидает в очереди. Если потребуется, выберите @TeamON Operator в поле сообщения.';
+    }catch{$('begin').textContent='Проверьте чат';$('message').textContent='Отправка не подтверждена. Проверьте чат и окно подтверждения Codex. Если запроса нет, выберите @TeamON Operator и отправьте «Помоги войти». Повторно автоматически не отправляем.';}};
+  new ResizeObserver(()=>notify('ui/notifications/size-changed',{height:document.documentElement.scrollHeight})).observe(document.body);
+  rpc('ui/initialize',{appInfo:{name:'teamon-installer',version:'0.1.0'},appCapabilities:{availableDisplayModes:['inline']},protocolVersion:'2026-01-26'}).then(r=>{
+    if(r.protocolVersion!=='2026-01-26'||!r.hostCapabilities?.serverTools)throw new Error('Unsupported host');
+    canMessage=r.hostCapabilities.message!==undefined;
+    initialized=true;notify('ui/notifications/initialized',{});if(current)accept(current);
+  }).catch(()=>{handshakeFailed=true;clearTimeout(initialDeadline);unavailable('Не удалось подключить экран к чату. Установка не запускалась с этого экрана. Откройте TeamON Installer заново.');});
+  requestAnimationFrame(frame);
+})();
+</script></body></html>

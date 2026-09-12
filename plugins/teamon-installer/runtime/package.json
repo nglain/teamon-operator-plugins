@@ -1,0 +1,30 @@
+{
+  "name": "@teamon/operator-mcp",
+  "version": "0.2.12-rc.1",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "teamon-operator": "./src/cli.mjs"
+  },
+  "files": [
+    "src/",
+    "README.md",
+    "docs/",
+    "examples/"
+  ],
+  "scripts": {
+    "check": "node --test test/*.test.mjs",
+    "package:release": "node scripts/package-release.mjs",
+    "package:plugin": "node scripts/package-plugin.mjs",
+    "pilot:two-instance": "node test/live-two-instance-pilot.mjs",
+    "start": "node src/cli.mjs serve"
+  },
+  "engines": {
+    "node": ">=24.14.1 <25"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "zod": "4.3.6"
+  }
+}
