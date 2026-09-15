@@ -26,7 +26,8 @@ codex plugin add teamon-installer@teamon-operator
    появились, выберите Operator через `@`; здоровый пакет не переустанавливайте.
 
 Bootstrap самого Installer происходит до карточки. Рабочее место Operator —
-обычный чат, не отдельная панель. Вход не означает доступ ко всем компаниям.
+HTML-пульт для навигации и обычный чат для действий. После входа открывается
+пульт через `workspace_open`. Вход не означает доступ ко всем компаниям.
 Пароли вводятся только на защищённой странице входа, не в чате.
 Уже существующий Installer из `personal` не нужно устанавливать второй раз:
 для перехода сначала явно выберите один источник и отключите старый helper.
@@ -74,8 +75,10 @@ it does not install Operator, open a browser, or read company credentials.
    Check only the selected company's access; if it needs resource-bound login,
    guide that explicit login and check again. Zero assignments require the
    administrator, not another installation. Keep passwords out of chat.
-8. Explain the workspace accurately: ordinary Codex chat, not a built-in Operator
-   dashboard. Finish with a short guide: find an agent/conversation, inspect a
+8. After confirmed login call workspace_open and open its browser URL. If absent,
+   report the installed-version gap; never substitute Master admin or private pilot data.
+   The HTML workspace is navigation, ordinary Codex chat handles actions.
+   Finish with a short guide: find an agent/conversation, inspect a
    request with evidence, read skills/connectors/identity, prepare a reply/change
    for confirmation. Do not send to employees or modify agents as an onboarding
    demonstration. Guide handed off and company access verified are separate facts.

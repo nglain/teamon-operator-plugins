@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
   "name": "teamon-installer",
-  "version": "0.1.0",
-  "source": "1f782bd58d9b75d649e2a9a0dd2de5316d96dc05",
+  "version": "0.1.1",
+  "source": "04f6f2c87bcf4c28e2133ca190c506d47c2e1f46",
   "dirty": false,
   "releaseBuild": true,
   "files": {
-    ".codex-plugin/plugin.json": "3901645edc81bdf38adfb99897d35b8bf8ef2e3d073a08d18a5f645740c643d4",
+    ".codex-plugin/plugin.json": "47bf3eb9e7a02e2b8437c52607fd902661a4d7ae387d8366ad088d9ac73a949c",
     ".mcp.json": "6c576b6364d1df9ffd638751cd5c9e389bde04d563b45b111c45e9c9378c842e",
-    "README.md": "29e6b726d5b527240d1186fd8d418760292f7d47c63ab2d907ac16d5fd1b0876",
+    "README.md": "57ca35295c12a002a1299b2ddac713821da11bdac65ed7b87c6f907ed429c43f",
     "mcp.json": "5f0ae5d0ff1a2a9263693669e315285f7935c44ad36c8f55cc9b5b0b43ca03f7",
-    "plugin.json": "d21394df1555214ce7d62770da0e8f393bf620f217615b8a3a14508df9c52d1d",
+    "plugin.json": "6de58ac846ad18ce9c9bd17aba62801307fb1e1344969bd164837414f0b8d984",
     "runtime/installer/mcp-job.mjs": "cfd80cfde202be5a3720bded978a6ba495ff85bc3b0bb29d76859c763a5a1ace",
-    "runtime/installer/mcp-server.mjs": "c0cf57f0d33c0d6642cf04d999b118fc0e6e637ef440fd13abd1b91fc13ace00",
-    "runtime/installer/mcp-view.html": "2fd9c4d66c118b98c298bba1425c99f704a8d580e6ad753b3651c37a81421df9",
-    "runtime/installer/runner.mjs": "488aebcc65a31f9355d0c68cce8f480ee830fbdbac1b58ad492d7ead3693d3cb",
+    "runtime/installer/mcp-server.mjs": "d2bc17adda7a3aa44319286ff33b0cf47f8c68f8a3046b10f04a34e4729a62c8",
+    "runtime/installer/mcp-view.html": "28ae25da171167779adf65b5d728d45d3323338c18817997e6ef2a7db9db15d8",
+    "runtime/installer/runner.mjs": "1af43b23de5af9723b3032a522ef0f099f73f06f3de49ead63fe0572c562cc02",
     "runtime/node_modules/.bin/node-which": {
       "symlink": "../which/bin/node-which"
     },
-    "runtime/node_modules/.package-lock.json": "c19d0e8cb902def42adb907a44fcfe9039bdbeea4f4245ca542350674d408463",
+    "runtime/node_modules/.package-lock.json": "086a0a324e9e61ce242d08a12d6d319b74b4a9ccd958bbf97092a286a4910c45",
     "runtime/node_modules/@hono/node-server/LICENSE": "6895190430d809c4c57a7582ecc2f99acbc2ea39a5dfad20262a41d5b3e91733",
     "runtime/node_modules/@hono/node-server/README.md": "ec0081af6db60874f711f90ae169e864abcbbca315408b30a5294e2f337590c9",
     "runtime/node_modules/@hono/node-server/dist/conninfo.cjs": "9b5088b89f4729e7bd4c841b5a35f59ddd5bc9666762a3c6d41a3c9d6a143cd6",
@@ -3618,8 +3618,8 @@
     "runtime/node_modules/zod-to-json-schema/package.json": "1f78f7c62913083878cd5bb0e9d10b8f5893d5799bbe1295068046707c24de3c",
     "runtime/node_modules/zod-to-json-schema/postcjs.ts": "112a8259f25a5973a7899d59487b018903b968307b809ccee9f96159f322e832",
     "runtime/node_modules/zod-to-json-schema/postesm.ts": "594a0e6cbc6eb54874164688517e627d8550a1df3ee20755d173c6187cf4a8c6",
-    "runtime/package-lock.json": "0689008802fac658af34d4317ef1ba125b45034574ebf2ef44798fb46784c4a4",
-    "runtime/package.json": "11a9affb3d644038399215c40bcffb23cabfad43e6dea513bc38e6ca09e7e3d7"
+    "runtime/package-lock.json": "7d29eb0d380fe09f9758cba1aa9413f8536700398c11c7619a0e702c11e03f92",
+    "runtime/package.json": "9d4eef9af819e23afc3954b1ea1a63717341bd8b9df06af057558797f53bd613"
   },
   "operatorInstalled": false
 }

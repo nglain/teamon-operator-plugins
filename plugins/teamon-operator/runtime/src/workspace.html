@@ -1,0 +1,1147 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TeamON · Оператор</title><style>:root{color-scheme:light dark;--bg:light-dark(#f6f7f9,#111315);--card:light-dark(#fff,#181b1f);--text:light-dark(#20242c,#e7e9ed);--muted:light-dark(#667080,#969eaa);--line:light-dark(#e6e9ee,#2a2f36);--accent:light-dark(#475bc4,#a3b2ff);--hover:light-dark(#f3f5fa,#20252d)}
+footer:has(#status:empty){display:none}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+main{max-width:1320px;margin:0 auto;min-height:100vh;background:var(--card)}
+header{height:64px;padding:0 28px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;gap:4px;align-items:center}.brand-mark{width:36px;height:36px;display:block;flex:0 0 36px;object-fit:contain}.brand h1{font-size:16px;font-weight:600;letter-spacing:-.3px;margin:0}.brand small{margin-left:8px;font-size:12px;color:var(--muted);border-left:1px solid var(--line);padding-left:12px}
+h2{font-size:21px;font-weight:600;letter-spacing:-.5px;margin:0 0 18px}h3{font-size:13px;margin:0 0 10px;font-weight:600}p{margin:6px 0}button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:default}button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.quiet{background:transparent;border:1px solid var(--line);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;white-space:nowrap}.quiet:hover{background:var(--hover)}.quiet.primary{background:var(--text);border-color:var(--text);color:var(--card)}
+#refresh{border:0;color:var(--muted)}#breadcrumb{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:12px 28px;margin:0;min-height:48px;border-bottom:1px solid var(--line)}#breadcrumb button{border:0;padding:2px 4px;color:var(--muted)}#breadcrumb button:after{content:' /';color:var(--line);margin-left:8px}#breadcrumb span{font-size:12px;color:var(--text)}
+.contextbar{padding:9px 28px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line);background:var(--bg);font-size:12px}
+.context-pair{display:flex;gap:20px;flex:1;min-width:200px;flex-wrap:wrap}.context-pair section{display:flex;gap:7px;align-items:baseline;min-width:0}.context-pair h3{font-size:11px;color:var(--muted);margin:0;font-weight:400;white-space:nowrap}.context-pair p{margin:0;font-size:12px}.context-pair p~p,.context-pair details{display:none}.context-pair #local-selection:has(#selection-data){border-left:2px solid var(--accent);padding-left:12px}
+#operator-context{position:relative;font-size:12px;color:var(--muted)}#operator-context>summary{list-style:none;cursor:pointer}#operator-context[open]{flex-basis:100%}#operator-context-data{max-height:240px;overflow:auto;font-size:11px}
+.layout.workspace{display:grid;grid-template-columns:240px minmax(0,1fr)}.layout.workspace.people-collapsed{grid-template-columns:42px minmax(0,1fr)}
+#people-panel{display:flex;align-items:flex-start;min-width:0;border-right:1px solid var(--line)}#people-rail{flex:0 0 26px;width:26px;height:30px;margin:24px 7px;padding:0;font-size:20px;color:var(--muted);border:0}#people-panel #people{flex:1;min-width:0;padding:26px 12px 20px 0}#people h3{color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.choice{display:block;width:100%;text-align:left;padding:10px 12px;border:1px solid var(--line);background:transparent;border-radius:7px;margin:7px 0;color:var(--text);overflow-wrap:anywhere}.choice:hover{background:var(--hover)}.choice[aria-current=true]{background:var(--hover);border-color:var(--accent)}#people .choice{border:0;font-size:12px;border-radius:5px;padding:9px;margin:2px 0}#people .choice[aria-current=true]{color:var(--accent)}#people .choice p{font-size:10px;margin:2px 0}#people>p{font-size:10px;margin:10px 8px}
+article{padding:24px 28px 36px;min-width:0;overflow:visible}.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 20px}#detail>.row{gap:20px;border-bottom:1px solid var(--line);margin:0 0 20px}#detail>.row>.quiet{padding:8px 0;border:0;border-radius:0;color:var(--muted);font-size:13px}#detail>.row>.quiet[aria-current=true]{color:var(--text);box-shadow:0 2px var(--text)}
+.muted{font-size:12px;color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.grid .choice{min-height:150px;padding:20px}.avatar{font-size:12px;width:32px;height:32px;border-radius:8px;background:var(--hover);display:grid;place-items:center;margin-bottom:12px;color:var(--accent)}
+.list-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0 8px}.list-count{font-size:12px;color:var(--muted)}input[type=search]{width:220px;max-width:60%;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--text);font-size:12px}
+.intent{border:0;border-bottom:1px solid var(--line);margin:0;background:transparent}.intent>summary{display:grid;grid-template-columns:minmax(0,1fr) 86px 118px 16px;gap:18px;align-items:center;padding:18px 0;cursor:pointer;list-style:none}.intent>summary::-webkit-details-marker{display:none}.intent>summary:hover .intent-title{color:var(--accent)}.intent-title{font-size:14px;font-weight:550;letter-spacing:-.1px;line-height:1.45}.intent-answer{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}.intent-person{font-size:11px;color:var(--muted);margin-top:6px}.intent-meta{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}.intent-meta .muted{font-size:11px}.intent-state{font-size:11px;color:var(--muted)}.intent-chevron{font-size:17px;color:var(--muted)}.intent[open] .intent-chevron{transform:rotate(180deg)}.intent[open]>.summary{background:var(--hover)}
+.intent-body{padding:0 16px 18px;border-left:2px solid var(--line);margin:0 0 18px 2px}.intent-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 12px}.message{padding:14px 0;border-top:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}.message strong{display:block;font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:500}.message>div{max-width:86ch;line-height:1.65}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:11px/1.5 ui-monospace,monospace;background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:12px}
+details:not(.intent){margin:8px 0}details:not(.intent)>summary{cursor:pointer;color:var(--muted);font-size:12px}.raw-source{font-size:11px}.data-note{margin-top:20px!important}.data-note p{max-width:85ch}.empty{padding:24px 0;color:var(--muted)}footer{padding:12px 28px;border-top:1px solid var(--line);color:var(--muted);font-size:11px}#status{font-size:11px}#installation{margin-top:3px;font-size:10px}
+@media(max-width:760px){header{padding:0 16px;height:54px}.brand small{display:none}#breadcrumb,.contextbar{padding:10px 16px}.layout.workspace{grid-template-columns:210px minmax(0,1fr)}article{padding:18px 16px}.intent>summary{grid-template-columns:minmax(0,1fr) 70px 12px;gap:10px}.intent-state{display:none}.intent-title{font-size:13px}.intent-meta{font-size:10px}.context-pair{gap:6px}.context-pair section{flex-basis:100%}.contextbar .quiet{padding:4px 8px}footer{padding:12px 16px}}
+@media(max-width:500px){.layout.workspace:not(.people-collapsed){grid-template-columns:1fr}#people-panel{border-bottom:1px solid var(--line)}#people{max-height:280px;overflow:auto}.people-collapsed #people-panel{border-bottom:0}.intent-answer{font-size:11px}.intent-meta .muted{font-size:10px}}
+.incoming>summary{grid-template-columns:minmax(0,1fr) 20px;gap:7px 20px;padding:20px 4px 22px;align-items:start}
+.incoming .intent-meta{grid-column:1;grid-row:1;flex-direction:row;align-items:center;gap:12px;flex-wrap:wrap;font-size:12px;line-height:1.4}
+.incoming .intent-meta .muted,.incoming .intent-state{font-size:12px;display:inline}
+.incoming .intent-main{grid-column:1;grid-row:2;min-width:0;max-width:78ch}
+.incoming .intent-title{font-size:16px;font-weight:400;line-height:1.55;letter-spacing:0;overflow-wrap:anywhere}
+.incoming .intent-chevron{grid-column:2;grid-row:2;align-self:center;text-align:center}
+.preview-kind{display:inline-block;font-size:11px;color:var(--muted);margin:0 0 5px;line-height:1.4}
+.incoming .intent-body{margin-left:4px;padding-left:18px}.incoming .message{font-size:14px}
+.list-toolbar{margin:10px 0 4px}.list-toolbar input{font-size:13px;padding:8px 12px}.list-count{font-size:13px}
+.incoming[open] .intent-main{display:none}.incoming[open] .intent-chevron{grid-row:1}.message>div{white-space:pre-wrap}
+@media(max-width:760px){.incoming>summary{padding:17px 0;gap:6px 12px}.incoming .intent-title{font-size:15px;line-height:1.55}.incoming .intent-meta,.incoming .intent-meta .muted,.incoming .intent-state{font-size:11px}}
+/* Chat names identify channels; each dated row retains its exact session key. */
+
+/* Compact task rows; full source prompts are opened explicitly. */
+.task-heading{margin:16px 0 4px;color:var(--muted);font-size:12px;font-weight:500}
+#detail .task-card{border:0;border-bottom:1px solid var(--line);border-radius:0;margin:0;padding:0}
+.task-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto auto;align-items:center;gap:10px;padding:9px 0;line-height:1.35}
+.task-name{font-size:13px;font-weight:500;color:var(--text);overflow-wrap:anywhere}.task-schedule,.task-enabled,.task-owner{font-size:11px;color:var(--muted)}.task-schedule,.task-enabled{white-space:nowrap}
+#detail .task-action{display:inline-block;width:auto;margin:0;padding:3px 0;border:0;border-radius:3px;background:transparent;color:var(--accent);font-size:11px;white-space:nowrap;line-height:1.35}
+#detail .task-action:hover,#detail .task-action[aria-expanded=true]{color:var(--text);text-decoration:underline;text-underline-offset:4px}
+.task-owner{display:block;margin:0 0 7px}.task-body{padding:10px 0 16px}.task-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px}.task-panel-head h3{margin:0;font-size:13px;color:var(--text)}
+.task-prompt{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.6;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:12px 14px}.task-body p{font-size:13px}
+@media(max-width:480px){.task-row{grid-template-columns:minmax(0,1fr) auto auto auto;gap:6px}.task-name{grid-column:1/-1}.task-schedule{grid-column:1}.task-panel-head{flex-wrap:wrap}}
+.intent-answer.outcome-blocked{color:light-dark(#b42332,#ff939b)}
+.intent-answer.outcome-partial{color:light-dark(#97510e,#efb36e)}
+.intent-answer.outcome-reported_success{color:light-dark(#216d46,#8ad1a9)}
+.intent-assessment{display:flex;gap:8px 18px;flex-wrap:wrap;margin:6px 0 10px;font-size:11px;color:var(--muted)}
+#detail .intent-evidence{border:0;margin:0 0 12px;padding:0}.intent-evidence summary{font-size:11px;color:var(--muted)}.intent-evidence p{font-size:12px}.intent-evidence .quiet{display:inline-block;width:auto;margin:5px 8px 0 0}
+.message:focus{outline:1px solid var(--accent);outline-offset:5px}
+/* Browsing stays left; the pinned scope is anchored to the right edge. */
+.contextbar{flex-wrap:nowrap;gap:14px}
+#local-browsing{display:flex;align-items:baseline;gap:7px;flex:1;min-width:0}
+.contextbar h3{font-size:11px;color:var(--muted);margin:0;font-weight:400;white-space:nowrap}
+.contextbar p{margin:0;font-size:12px;min-width:0;overflow-wrap:anywhere}
+.contextbar section>p~p,.contextbar section>details{display:none}
+.pin-tray{margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:4px;min-width:0;max-width:60%}
+#local-selection{display:flex;align-items:baseline;gap:7px;min-width:0;padding:4px 8px;border-left:2px solid var(--accent)}
+#local-selection h3{display:none}
+.context-icon{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;border:0;border-radius:5px;padding:5px;background:transparent;color:var(--muted);cursor:pointer}
+.context-icon:hover{background:var(--hover);color:var(--text)}.context-icon.has-pin{color:var(--accent)}
+.context-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:600px){.contextbar{gap:8px;flex-wrap:wrap}#local-browsing{flex-basis:100%}.pin-tray{max-width:100%}.contextbar:has(#local-selection[hidden]) #local-browsing{flex-basis:auto}}
+
+/* Conversation directory: source filters and aligned compact rows. */
+.chat-filters{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0 18px}
+#detail .chat-filter{display:flex;align-items:center;gap:7px;width:auto;margin:0;padding:5px 9px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--muted);font-size:12px}
+#detail .chat-filter:hover{background:var(--hover)}#detail .chat-filter[aria-pressed=true]{background:var(--hover);border-color:var(--line);color:var(--text)}
+.chat-count{font-size:11px;opacity:.65;font-variant-numeric:tabular-nums}
+.chat-columns,#detail .chat-session{display:grid;grid-template-columns:minmax(0,1fr) 135px 155px 12px;gap:14px;align-items:center}
+.chat-columns{padding:0 10px 9px;font-size:11px;color:var(--muted)}.chat-columns>span:nth-child(3){text-align:right}
+#detail .chat-session{width:100%;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;padding:11px 10px;margin:0;text-align:left;color:var(--text)}
+#detail .chat-session:hover{background:var(--hover)}.chat-main{display:flex;flex-direction:column;gap:3px;min-width:0}
+.chat-title{font-size:13px;font-weight:500;overflow-wrap:anywhere}.chat-description{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+.chat-source{font-size:11px;justify-self:start;padding:3px 7px;border:1px solid var(--line);border-radius:5px;color:var(--muted)}.chat-source.unspecified{border-color:transparent;padding-left:0}
+.chat-date{font-size:11px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}.chat-arrow{font-size:15px;color:var(--muted)}
+@media(max-width:600px){.chat-columns{display:none}#detail .chat-session{grid-template-columns:minmax(0,1fr) auto 12px;gap:5px 10px}.chat-main{grid-column:1;grid-row:1/3}.chat-source{grid-column:2;grid-row:1;justify-self:end}.chat-date{grid-column:2;grid-row:2}.chat-arrow{grid-column:3;grid-row:1/3}}
+
+.inspection-heading{margin:17px 0}.inspection-heading h3{font-size:15px;margin:0 0 6px}.inspection-heading p{font-size:12px;margin:0;line-height:1.5}
+#detail .inspection-section,#detail .response-analysis{margin:0;border:0;border-top:1px solid var(--line);border-radius:0;padding:0}
+.inspection-section>summary,.response-analysis>summary{padding:14px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;cursor:pointer;list-style:none}.inspection-section>summary:after,.response-analysis>summary:after{content:'›';color:var(--muted)}.inspection-section[open]>summary:after,.response-analysis[open]>summary:after{content:'⌄'}.inspection-section>summary .muted{margin-left:auto;font-size:12px}.inspection-section summary::-webkit-details-marker,.response-analysis summary::-webkit-details-marker{display:none}
+.inspection-content{padding:0 0 16px}.inspection-content p{font-size:12px;line-height:1.55}.inspection-row{display:grid;grid-template-columns:145px minmax(0,1fr);gap:14px;padding:7px 0;font-size:12px;overflow-wrap:anywhere}
+.inspection-content .quiet,.inspection-empty .quiet{display:inline-block!important;width:auto!important;margin:8px 8px 0 0!important;padding:6px 10px!important;font-size:12px!important}
+[data-inspection-select][aria-pressed=true]{color:var(--accent)!important;border-color:var(--accent)!important}
+.skill-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:12px}.skill-row small{display:block;margin-top:3px;font-size:10px;overflow-wrap:anywhere}.skill-row>div{min-width:0}
+.inspection-chips{display:flex;flex-wrap:wrap;gap:6px}.inspection-chips span{padding:5px 8px;background:var(--hover);border-radius:5px;font-size:12px}
+.inspection-empty{border:1px solid var(--line);padding:16px;border-radius:7px;font-size:13px}.inspection-empty p,.inspection-footnote{font-size:12px!important;color:var(--muted);line-height:1.5}
+.response-stages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 12px}.response-stage{display:flex;flex-direction:column;gap:7px;padding:12px;border:1px solid var(--line);border-radius:6px;font-size:12px}.response-stage span{font-size:11px;color:var(--muted)}.response-stage.pending span{color:light-dark(#97510e,#efb36e)}.response-stage.ready span{color:light-dark(#216d46,#8ad1a9)}
+#detail .analysis-gaps{padding:0;border:0;margin:10px 0;font-size:12px}.analysis-gaps summary{color:var(--muted);cursor:pointer}.analysis-gaps li{margin:7px 0;line-height:1.5}
+@media(max-width:700px){.response-stages{grid-template-columns:repeat(2,minmax(0,1fr))}.inspection-row{grid-template-columns:110px minmax(0,1fr)}.inspection-section>summary{flex-wrap:wrap}}
+
+.message-attachments{display:flex;flex-wrap:wrap;gap:7px;margin:9px 0}.message-attachment{font-size:12px;background:var(--hover);border:1px solid var(--line);border-radius:5px;padding:6px 9px;overflow-wrap:anywhere}
+#detail .message-technical{border:0;padding:0;margin:12px 0 0;font-size:11px}.message-technical summary{color:var(--muted);cursor:pointer}.message-meta-row{display:grid;grid-template-columns:145px minmax(0,1fr);gap:12px;padding:6px 0;overflow-wrap:anywhere;font-size:11px;line-height:1.5}.message-technical[open]{padding-top:8px!important}.message>div{white-space:pre-wrap}
+@media(max-width:600px){.message-meta-row{grid-template-columns:1fr;gap:3px}}
+.context-workbench{margin-top:18px}.context-overview{border:1px solid var(--line);border-radius:9px;padding:14px 16px;margin-bottom:14px}.context-overview-title{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px}.context-overview-title .muted{font-size:11px}.context-meter-unknown{height:23px;margin:12px 0 9px;border-radius:5px;background:var(--hover);color:var(--muted);font-size:11px;display:grid;place-items:center}
+.context-legend{display:flex;flex-wrap:wrap;gap:5px}#detail .context-legend-button{display:flex;align-items:center;gap:5px;width:auto;margin:0;border:0;padding:5px 7px;border-radius:5px;background:transparent;color:var(--muted);font-size:11px}.context-legend-button[aria-pressed=true]{background:var(--hover)!important;color:var(--text)!important}.context-dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex:none}
+.context-browser{display:grid;grid-template-columns:minmax(220px,36%) minmax(0,1fr);border:1px solid var(--line);border-radius:9px;overflow:hidden;min-height:430px}.context-sidebar{padding:12px;border-right:1px solid var(--line);min-width:0}.context-sidebar input{width:100%;font-size:12px;padding:9px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--text);margin:0 0 8px}.context-sidebar select{max-width:100%;font:inherit;font-size:11px;color:var(--muted);background:var(--bg);border:0;margin:2px 0 12px;padding:5px}
+#detail .context-category{border:0;padding:0;margin:0 0 7px}.context-category>summary{display:flex;align-items:center;gap:7px;cursor:pointer;padding:10px 3px;font-size:12px;list-style:none}.context-category summary::-webkit-details-marker{display:none}.context-category>summary:before{content:'›';color:var(--muted)}.context-category[open]>summary:before{content:'⌄'}.context-category>summary small{margin-left:auto}
+#detail .context-leaf{display:flex;align-items:start;gap:8px;width:100%;margin:1px 0;border:0;padding:9px 8px;border-radius:6px;background:transparent;color:var(--text);text-align:left;font-size:12px}.context-leaf:hover,.context-leaf[aria-current=true]{background:var(--hover)!important}.context-leaf[aria-current=true]{box-shadow:inset 2px 0 var(--accent)}.context-leaf-text{min-width:0;flex:1;overflow-wrap:anywhere}.context-leaf-text small{display:block;font-size:10px;margin-top:5px}.context-scope{font-size:10px;color:var(--accent);background:var(--hover);padding:2px 5px;border-radius:4px;white-space:nowrap}
+.context-document{padding:24px;min-width:0;align-self:start;position:sticky;top:0}.context-document h3{font-size:20px;line-height:1.35;margin:0 0 14px;overflow-wrap:anywhere}.context-document-tags{display:flex;gap:9px;flex-wrap:wrap;align-items:center;font-size:11px}.context-document-copy{font-size:13px!important;line-height:1.65;margin:20px 0!important}.context-document-body{padding:13px;background:var(--hover);border-radius:6px;font-size:13px!important;white-space:pre-wrap;overflow-wrap:anywhere}.context-source-id{display:block;overflow-wrap:anywhere;font-size:11px;color:var(--muted);margin:0 0 18px}.context-document-facts{border-block:1px solid var(--line);padding:9px 0;margin:18px 0}.context-document-facts .inspection-row{grid-template-columns:1fr 1fr;font-size:11px}.context-document-note{font-size:11px!important;color:var(--muted);margin-top:18px!important;line-height:1.6}#detail .context-document .quiet{font-size:12px;width:auto;padding:7px 10px}
+@media(max-width:700px){.context-browser{grid-template-columns:minmax(165px,40%) minmax(0,1fr)}.context-sidebar{padding:8px}.context-document{padding:16px}.context-document h3{font-size:17px}.context-leaf .context-scope{display:none}.context-overview{padding:12px}.context-document-facts .inspection-row{grid-template-columns:1fr;gap:4px}}
+@media(max-width:480px){.context-browser{grid-template-columns:1fr}.context-sidebar{border-right:0;border-bottom:1px solid var(--line);max-height:250px;overflow:auto}.context-document{position:static}}
+.context-sidebar input{max-width:100%}
+.access-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.access-heading h2{margin-bottom:0!important}.access-entry{margin-top:18px!important}.access-list{margin:22px 0 14px}.access-list .inspection-section>summary{padding:15px 0}.access-binding{display:grid;grid-template-columns:minmax(80px,1fr) minmax(160px,2fr) minmax(140px,2fr) 16px;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 0!important;border:0!important;border-radius:0!important;font-size:12px!important}.access-binding strong{font-size:13px}.access-secret{display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:8px 0;font-size:12px}.access-secret button{margin-left:auto}.access-help{margin-top:18px!important;border:0!important;padding:0!important;font-size:12px}.access-help summary{color:var(--muted);cursor:pointer}.access-help dl{display:grid;grid-template-columns:130px 1fr;gap:10px;margin:15px 0;line-height:1.6}.access-help dd{margin:0;color:var(--muted)}.access-note{font-size:11px!important;color:var(--muted);margin-top:22px!important}.usage-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:8px 0 16px}.usage-metrics>div{display:flex;flex-direction:column;gap:7px;font-size:11px}.usage-metrics strong{font-size:22px;font-weight:500}@media(max-width:650px){.access-binding{grid-template-columns:1fr auto}.access-binding small{grid-column:1}.access-help dl{grid-template-columns:1fr;gap:5px}.access-help dd{margin-bottom:10px}.usage-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.access-binding{background:transparent;color:var(--text);white-space:normal}.access-binding:hover{background:var(--hover)}
+.journal-list{margin-top:24px}.journal-timeline{border-left:1px solid var(--line);padding-left:16px;margin-top:18px}.journal-event{padding:0 0 20px;margin-bottom:16px;border-bottom:1px solid var(--line)}.journal-event>small,.journal-event>strong{display:block}.journal-event>strong{margin:5px 0;font-size:13px}.journal-event details{border:0!important;padding:0!important;font-size:11px;color:var(--muted)}.journal-event pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px}.journal-list>.inspection-section>summary strong{font-size:13px}
+</style></head><body><main><header><div class="brand"><img class="brand-mark" alt="TeamON" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iVGVhbU9OIj4KICA8ZGVmcz4KICAgIDxmaWx0ZXIgaWQ9InNvZnQtc2hhZG93IiB4PSItMjAlIiB5PSItMjAlIiB3aWR0aD0iMTQwJSIgaGVpZ2h0PSIxNDAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjIyIiBzdGREZXZpYXRpb249IjM2IiBmbG9vZC1jb2xvcj0iIzEwMTcyMiIgZmxvb2Qtb3BhY2l0eT0iLjE4Ii8+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CiAgPHJlY3QgeD0iOTYiIHk9Ijk2IiB3aWR0aD0iODMyIiBoZWlnaHQ9IjgzMiIgcng9IjE4OCIgZmlsbD0iI2ZmZiIgZmlsdGVyPSJ1cmwoI3NvZnQtc2hhZG93KSIvPgogIDxyZWN0IHg9Ijk4IiB5PSI5OCIgd2lkdGg9IjgyOCIgaGVpZ2h0PSI4MjgiIHJ4PSIxODYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2U4ZWRmMyIgc3Ryb2tlLXdpZHRoPSIxMCIvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE2MCAxNjApIHNjYWxlKDExKSI+CiAgICA8ZyBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjQuMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICAgICAgPHBhdGggZD0iTTEzIDIxIDMxIDEwIDUwIDIxIiBzdHJva2U9IiMwYjExMWMiLz4KICAgICAgPHBhdGggZD0iTTEzIDIxdjIzIiBzdHJva2U9IiMwYjExMWMiLz4KICAgICAgPHBhdGggZD0iTTEzIDIxIDMxIDMyIDEzIDQ0IiBzdHJva2U9IiMwYjExMWMiLz4KICAgICAgPHBhdGggZD0iTTMxIDEwdjIyTTMxIDMydjIyIiBzdHJva2U9IiMwYjExMWMiLz4KICAgICAgPHBhdGggZD0iTTEzIDQ0IDMxIDU0IDUwIDQ0IiBzdHJva2U9IiMwYjExMWMiLz4KICAgICAgPHBhdGggZD0iTTMxIDMyIDUwIDIxTTMxIDMyIDUwIDQ0IiBzdHJva2U9IiMxNWM3MjUiLz4KICAgICAgPHBhdGggZD0iTTUwIDIxdjIzIiBzdHJva2U9IiMxNWM3MjUiIHN0cm9rZS13aWR0aD0iMy44IiBzdHJva2UtZGFzaGFycmF5PSIxIDciLz4KICAgIDwvZz4KICAgIDxnPgogICAgICA8Y2lyY2xlIGN4PSIxMyIgY3k9IjIxIiByPSI0LjciIGZpbGw9IiMwYjExMWMiLz4KICAgICAgPGNpcmNsZSBjeD0iMzEiIGN5PSIxMCIgcj0iNC43IiBmaWxsPSIjMGIxMTFjIi8+CiAgICAgIDxjaXJjbGUgY3g9IjEzIiBjeT0iNDQiIHI9IjQuNyIgZmlsbD0iIzBiMTExYyIvPgogICAgICA8Y2lyY2xlIGN4PSIzMSIgY3k9IjU0IiByPSI0LjciIGZpbGw9IiMwYjExMWMiLz4KICAgICAgPGNpcmNsZSBjeD0iMzEiIGN5PSIzMiIgcj0iOC40IiBmaWxsPSIjMTVjNzI1Ii8+CiAgICAgIDx0ZXh0IHg9IjMxIiB5PSIzNC44IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0iSW50ZXIsIEF2ZW5pciBOZXh0LCBBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI3LjIiIGZvbnQtd2VpZ2h0PSI4NTAiPk9OPC90ZXh0PgogICAgICA8Y2lyY2xlIGN4PSI1MCIgY3k9IjIxIiByPSI1IiBmaWxsPSIjMTVjNzI1Ii8+CiAgICAgIDxjaXJjbGUgY3g9IjUwIiBjeT0iNDQiIHI9IjUiIGZpbGw9IiMxNWM3MjUiLz4KICAgIDwvZz4KICA8L2c+Cjwvc3ZnPgo="><h1>Оператор</h1><small>Компании и обращения</small></div><button id="refresh" class="quiet">Компании ↗</button><span id="identity" hidden></span></header>
+<div id="breadcrumb" class="row" aria-label="Навигация"></div><section class="contextbar" aria-label="Область обсуждения"><section id="local-browsing" aria-label="Текущий просмотр"></section><div class="pin-tray"><section id="local-selection" aria-label="Закреплённый контекст"></section><button id="clear-context" class="context-icon" aria-label="Снять закрепление" title="Снять закрепление" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button><button id="use-context" class="context-icon" aria-label="Закрепить открытый контекст" title="Закрепить открытый контекст" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 3 5 5-3 1-4 4v4l-3-3-6 6m6-9-4-4h4l4-4z"/></svg></button></div><div id="operator-context" hidden><div id="installation"></div><pre id="operator-context-data"></pre></div></section><div id="layout" class="layout"><div id="people-panel"><button id="people-rail" class="quiet" type="button" aria-controls="people"></button><aside id="people" aria-label="Пользователи" hidden></aside></div><article id="detail"><h2>Компании</h2><p class="empty">Ожидаю список подключений…</p></article></div>
+<footer><div id="status" role="status" aria-live="polite"></div></footer></main>
+<script>
+(() => {
+  const activityEpisodes = function activityEpisodes(input) {
+  const groups = new Map(), seen = new Set();
+  const timestamp = m => typeof m.ts === 'string' && Number.isFinite(Date.parse(m.ts)) ? Date.parse(m.ts) : null;
+  for (const m of input) {
+    if (!m.sessionKey || !m.agentId || m.id === undefined || m.id === null || !['user','assistant'].includes(m.role)) continue;
+    const group = JSON.stringify([m.sessionKey,m.agentId,String(m.userId)]);
+    const key = JSON.stringify([group,String(m.id)]);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    if (!groups.has(group)) groups.set(group,[]);
+    groups.get(group).push(m);
+  }
+  const episodes = [];
+  for (const [group,rows] of groups) {
+    rows.sort((a,b)=>(timestamp(a) ?? Infinity) - (timestamp(b) ?? Infinity));
+    let current;
+    for (const m of rows) {
+      // Unknown dates cannot establish a relationship to a neighbouring turn.
+      if (!current || timestamp(m) === null || current.undated || m.role === 'user') {
+        current = { id:JSON.stringify([group,String(m.id)]), sessionKey:m.sessionKey, agentId:m.agentId,
+          userId:m.userId, userName:m.userName, username:m.username, channel:m.channel,
+          title:m.role === 'user' ? m.preview || '[Без текстового содержимого]' : 'Начало обращения не попало в выборку',
+          requestMissing:m.role !== 'user', provisional:true, acceptance:'not_checked',
+          messages:[], messageIds:[], userMessages:0, agentMessages:0, undated:timestamp(m) === null };
+        episodes.push(current);
+      }
+      current.messages.push(m);
+      if (m.messageId !== undefined && m.messageId !== null) current.messageIds.push(m.messageId);
+      if (m.role === 'user') current.userMessages++; else current.agentMessages++;
+    }
+  }
+  for (const e of episodes) {
+    const first = e.messages[0], last = e.messages.at(-1);
+    e.startedAt = first.ts; e.lastActive = last.ts;
+    e.elapsedMs = e.messages.length > 1 && timestamp(first) !== null && timestamp(last) !== null
+      ? timestamp(last)-timestamp(first) : null;
+    e.outcome = e.agentMessages ? 'response_observed' : 'response_not_observed';
+  }
+  return episodes.sort((a,b)=>(timestamp({ts:b.lastActive}) ?? -Infinity)-(timestamp({ts:a.lastActive}) ?? -Infinity));
+};
+  const intentPreview = function intentPreview(value) {
+  if (typeof value !== 'string') return '';
+  // Hide only known leading transport metadata in the preview; source stays intact.
+  return value.replace(/^(?:\s*\[tg_(?:chat_id|msg_id|dttm|timezone|local_dttm|calendar_authoritative|media_group_count|media_group_msg_ids):[^\]]*\])+\s*/u, '')
+    .replace(/\s+/gu, ' ').trim();
+};
+  const el = id => document.getElementById(id), detail = el('detail'), status = el('status');
+  const snapshot = {capturedAt:new Date().toISOString(),activity:{items:[]},tasks:{users:[]},providerAccounts:null};
+  let ready=true, contextSupport=true, companies=[], company=null, agents=[], agent=null, person=null;
+  let generation=0, page='companies', tab='dialogues', conversation=null, configuration=null, showService=false;
+  let sourceRefs=[], contextRevision=0, pinnedScope=null, selectedMessageIds=[], activityData=null, installation=null, currentTask=null, inspectionTarget=null;
+  const peopleByAgent=new Map();
+  const intentLabels=[];
+  const capturedAt=snapshot.capturedAt;
+  const documentId=crypto.randomUUID();
+  let viewRevision=0, viewSignature='', viewUpdatedAt=null;
+  async function request(method, params) {
+    if(method!=='tools/call')throw Error('Unsupported operation');
+    const response=await fetch(new URL('read',location.href),{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(params)});
+    const value=await response.json();
+    if(!response.ok){
+      const messages={instance_login_required:'Нужно подтвердить подключение этой компании. Напишите в чате: «Подключи выбранную компанию».',account_login_required:'Нужно снова войти в TeamON через чат.',account_changed:'Аккаунт изменился. Переподключите Operator, не продолжайте в контексте прежнего пользователя.',account_service_unavailable:'Сервис авторизации временно недоступен. Повторите чтение позже.'};
+      throw Error(messages[value.error]||value.error||'Не удалось прочитать данные');
+    }
+    return value;
+  }
+  function node(tag, text, className) { const item = document.createElement(tag); item.textContent = text; if (className) item.className = className; return item; }
+  function button(text, action, style = 'choice') { const b = node('button', text, style); b.type = 'button'; b.disabled = !ready; b.addEventListener('click', action); return b; }
+  function note(parent, text) { parent.append(node('p', text, 'muted')); }
+  function json(parent, value) { parent.append(node('pre', JSON.stringify(value, null, 2))); }
+  const agentName = a => a?.name || a?.id || 'Все агенты';
+  const username = p => typeof p?.username === 'string' && p.username.trim() ? '@' + p.username.trim().replace(/^@+/, '') : '';
+  const displayName = p => typeof p?.displayName === 'string' && p.displayName.trim() !== String(p.userId) ? p.displayName.trim() : '';
+  const userName = p => !p ? 'Все пользователи' : displayName(p) || username(p) || (Number(p.userId) < 0 ? 'Групповой чат · ' : 'Пользователь · ') + p.userId;
+  const activityTime = p => { const time = typeof p?.lastActive === 'string' ? Date.parse(p.lastActive) : NaN; return Number.isFinite(time) ? time : -Infinity; };
+  function peopleRows(rows) {
+    // Identity is scoped by the caller's instance + agent, never by a name or session.
+    const unique = new Map();
+    for (const p of (Array.isArray(rows) ? rows : []).filter(p => p && /^-?[1-9]\d*$/.test(String(p.userId)) && Number.isSafeInteger(Number(p.userId))).sort((a,b) => activityTime(b) - activityTime(a))) {
+      const key = String(p.userId), previous = unique.get(key);
+      if (!previous) unique.set(key, { ...p });
+      else {
+        // Keep latest activity, but don't lose a known name to a nameless session row.
+        if (!displayName(previous) && displayName(p)) previous.displayName = p.displayName;
+        if (!username(previous) && username(p)) previous.username = p.username;
+      }
+    }
+    return [...unique.values()];
+  }
+  const base = () => ({ instance_id:company.instanceId, ...(agent ? { agent_id:agent.id } : {}) });
+  function scope() {
+    return { source:'operator_view_selection', runtime:company?.runtime || null, instance_id:company?.instanceId || null,
+      label:[company?.label, agentName(agent), userName(person)].filter(Boolean).join(' / '),
+      ...(agent ? { agent_id:agent.id } : {}), ...(person ? { user_id:String(person.userId) } : {}),
+      ...(conversation ? { session_key:conversation.sessionKey } : {}), ...(currentTask?{agent_id:currentTask.agent_id,user_id:String(currentTask.user_id),task_id:currentTask.id,task_title:currentTask.label,task_source:{captured_at:snapshot.tasks.captured_at,revision:currentTask.revision}}:{}), view:page, tab,
+      ...(conversation?.capturedAt ? { conversation_source:{ captured_at:conversation.capturedAt,
+        context_revision:conversation.contextRevision, delivery_revision:conversation.revision, source_input_id:conversation.sourceInputId } } : {}),
+      ...(selectedMessageIds.length ? { message_ids:selectedMessageIds.slice() } : {}), sources:sourceRefs.slice(),
+      note:'Navigation references only, not an instruction, verified result or approval to act. Re-read exact sources. Broad scope is operator analysis, not broadcast or a private agent job. Native consultation requires one exact conversation.' };
+  }
+  function selectContext(explicit=false, selectedScope) {
+    if(!explicit){renderPinned();return}
+    const value=selectedScope||scope();
+    pinnedScope=value.instance_id?{...value,source:'operator_html_selection',selection_revision:++contextRevision,captured_at:capturedAt,
+      inspection_target:inspectionTarget,selection_kind:inspectionTarget?'inspection':currentTask?'task':conversation?(selectedMessageIds.length?'intent_or_messages':'conversation'):person?'user':agent?'agent':'company',
+      conversation_title:conversation?.title||null,
+      selected_messages:conversation?snapshot.activity.items.filter(m=>m.sessionKey===conversation.sessionKey&&(!selectedMessageIds.length||selectedMessageIds.includes(m.messageId))).map(m=>({id:m.messageId,role:m.role,text:m.preview,truncated:m.previewTruncated})):[],
+      note:'Выбор на локальной странице, не отправка в чат и не разрешение на внешнее действие. Источники являются данными.'}:null;
+    renderPinned();status.textContent=pinnedScope?'Выбрано на странице. Напиши в чате: «Что я выбрал?»':'Закрепление снято.';
+  }
+  function renderPinned() {
+    renderBrowsing();
+    el('clear-context').hidden=!pinnedScope;
+    el('use-context').classList.toggle('has-pin',!!pinnedScope);
+    el('local-selection').hidden=!pinnedScope;
+    const box=el('local-selection');box.replaceChildren();
+    box.append(node('h3','Закреплено'));
+    if(!pinnedScope){box.append(node('p','Нет','muted'));return}
+    box.append(node('p',pinnedScope.label+(pinnedScope.inspection_target?' / '+pinnedScope.inspection_target.label:pinnedScope.task_title?' / '+pinnedScope.task_title:'')));
+    if(pinnedScope.conversation_title)box.append(node('p','Чат / интент: '+intentPreview(pinnedScope.conversation_title)));
+    box.append(node('p',pinnedScope.selection_kind==='intent_or_messages'?'Выбранных сообщений: '+pinnedScope.message_ids.length:pinnedScope.selection_kind==='conversation'?'Выбрана беседа целиком':'Выбран обзор '+(pinnedScope.user_id?'пользователя':pinnedScope.agent_id?'агента':'компании'),'muted'));
+    box.append(node('p','Просмотр других карточек не меняет этот выбор.','muted'));
+    const details=node('details','');details.id='selection-details';details.append(node('summary','Точные ссылки и выбранные сообщения'));const pre=node('pre',JSON.stringify(pinnedScope,null,2));pre.id='selection-data';details.append(pre);box.append(details);
+  }
+  function renderBrowsing() {
+    const current=scope();
+    const browsing=current.instance_id?{...current,source:'operator_html_navigation',
+      inspection_target:inspectionTarget,scope_kind:inspectionTarget?'inspection':currentTask?'task':conversation?'conversation':person?'user':agent?'agent':'company',
+      conversation_title:conversation?.title||null}:null;
+    const signature=JSON.stringify({browsing,pinned:pinnedScope});
+    if(signature!==viewSignature){viewSignature=signature;viewRevision++;viewUpdatedAt=new Date().toISOString()}
+    const box=el('local-browsing');box.replaceChildren(node('h3','Открыто'));
+    box.append(node('p',browsing?browsing.label+(inspectionTarget?' / '+inspectionTarget.label:currentTask?' / '+currentTask.label:''):'Список компаний'));
+    if(conversation)box.append(node('p','Чат: '+(intentPreview(conversation.title||'')||'Без названия')));
+    box.append(node('p',pinnedScope?'Для общего вопроса используется закрепление. «Здесь / в открытом» — текущий просмотр.':browsing?'Этот просмотр — контекст по умолчанию. Можно просто задать вопрос в чате.':'Открой компанию или назови её в вопросе.','muted'));
+    const payload={schema:'operator_context/v1',document_id:documentId,revision:viewRevision,updated_at:viewUpdatedAt,
+      data:{mode:'live_reads',captured_at:capturedAt,complete:false,full_text_captured_at:snapshot.fullTextCapturedAt,full_text_messages:snapshot.activity.items.length,tasks_captured_at:snapshot.tasks.captured_at,task_history_complete:false},browsing,pinned:pinnedScope,
+      default_basis:pinnedScope?'pinned':browsing?'browsing':'none',
+      note:'Явный предмет вопроса важнее выбора страницы. Здесь/открыто означает browsing, закреплённое означает pinned. При неоднозначности уточнить. Это ссылки, не прочитанные источники и не разрешение на действия.'};
+    el('operator-context-data').textContent=JSON.stringify(payload,null,2);
+  }
+  function transition() { inspectionTarget=null;currentTask=null; generation++; configuration = null; sourceRefs = []; selectedMessageIds = []; activityData = null; showService = false; selectContext(); }
+  async function call(name, args) {
+    const response = await request('tools/call', { name, arguments:args });
+    if (response.isError) {
+      const reason = (response.content || []).filter(item => item.type === 'text' && typeof item.text === 'string').map(item => item.text).join(' ').slice(0,1000);
+      throw new Error('Чтение недоступно: ' + name + (reason ? ' · ' + reason : '') + '. Остальные разделы доступны; это не запрет агенту.');
+    }
+    if (!response.structuredContent || typeof response.structuredContent !== 'object') throw new Error('Неподдерживаемый ответ: ' + name);
+    const data=response.structuredContent;
+    if(name==='activity_read' && args.instance_id===company?.instanceId && (!args.agent_id || args.agent_id===agent?.id)){
+      snapshot.activity={items:data.items||[]};snapshot.capturedAt=new Date().toISOString();
+    }
+    return data;
+  }
+  async function load(parent, action, render) {
+    if (!parent.isConnected) return;
+    const version = generation, busy = node('p', 'Читаю…', 'muted'); parent.append(busy);
+    try { const data = await action(); if (version !== generation || !parent.isConnected) return; busy.remove(); render(data); }
+    catch (error) {
+      if (version !== generation || !parent.isConnected) return;
+      busy.textContent = error.message;
+      const retry = button('Повторить чтение', () => { busy.remove(); retry.remove(); void load(parent, action, render); }, 'quiet'); parent.append(retry);
+    }
+  }
+  function section(parent, label, render) {
+    const box = node('details', ''), body = node('div', '', 'sources'); let opened = false;
+    box.append(node('summary', label), body); parent.append(box);
+    box.addEventListener('toggle', () => { if (box.isConnected && box.open && !opened) { opened = true; render(body); } }); return box;
+  }
+  function setPeopleCollapsed(collapsed) {
+    const visible=page==='workspace', rail=el('people-rail'), people=el('people');
+    const moveFocus=visible&&collapsed&&people.contains(document.activeElement);
+    el('people-panel').hidden=!visible;
+    el('layout').classList.toggle('people-collapsed',visible&&collapsed);
+    people.hidden=!visible||collapsed;
+    rail.textContent=collapsed?'›':'‹';
+    rail.title=collapsed?'Показать пользователей':'Свернуть пользователей';
+    rail.setAttribute('aria-label',rail.title);
+    rail.setAttribute('aria-expanded',String(visible&&!collapsed));
+    if(moveFocus)rail.focus({preventScroll:true});
+  }
+  el('people-rail').addEventListener('click',()=>setPeopleCollapsed(!el('people').hidden));
+  function chrome() {
+    el('layout').classList.toggle('workspace', page === 'workspace'); setPeopleCollapsed(!!person); el('use-context').hidden = !company;
+    const crumbs = el('breadcrumb'); crumbs.replaceChildren(button('Компании', showCompanies, 'quiet'));
+    if (company) crumbs.append(button(company.label || company.instanceId, () => inspect(company), 'quiet'));
+    if (page === 'workspace') crumbs.append(node('span', agentName(agent) + (person ? ' / ' + userName(person) : ' / Все пользователи'), 'muted'));
+  }
+  function companyCard(c) {
+    const card = button('', () => inspect(c)); card.append(node('div', (c.label || c.instanceId).slice(0,2).toUpperCase(), 'avatar'), node('h3', c.label || c.instanceId));
+    note(card, c.runtime === 'core' ? 'TeamON Core' : 'TeamON Staff');
+    note(card, Array.isArray(c.observedAgents) ? c.observedAgents.length + ' агентов · срез ' + c.observedAt : 'Открыть агентов и обращения');
+    card.dataset.instance = c.instanceId; return card;
+  }
+  function renderFleet(payload) {
+    if (!Array.isArray(payload?.instances)) return; companies = payload.instances;
+    installation = payload.installation || null;
+    el('installation').textContent = 'Данные читаются через текущий Operator; открытые разделы — не полный архив.';
+    el('identity').textContent = (payload.operator?.displayName || 'Оператор') + ' · подключений: ' + companies.length; showCompanies();
+  }
+  function showCompanies() {
+    company = agent = person = conversation = null; agents = []; page = 'companies'; transition(); chrome();
+    detail.replaceChildren(node('h2', 'Компании')); note(detail, 'Выберите компанию, чтобы открыть её агентов и переписку.');
+    const grid = node('div', '', 'grid'); companies.forEach(c => grid.append(companyCard(c))); detail.append(grid);
+    if (!companies.length) {
+      note(detail, installation?.message || 'Компании не назначены. Администратор может назначить доступ в Master.');
+      if (Array.isArray(installation?.setupCommand)) detail.append(node('pre', installation.setupCommand.map(value => "'" + String(value).replaceAll("'", "'\\''") + "'").join(' ')));
+    }
+  }
+  function agentCard(a, action) {
+    const card = button('', action); card.append(node('div', a ? agentName(a).slice(0,2).toUpperCase() : 'Все', 'avatar'), node('h3', agentName(a)));
+    if (a) { note(card, [a.role, a.runtime, a.model].filter(Boolean).join(' · ')); note(card, (a.userCount ?? '—') + ' пользователей · ' + (a.assignedConnectors?.length ?? '—') + ' назначенных коннекторов'); }
+    else note(card, 'Переписка всех агентов компании.'); return card;
+  }
+  function renderAgents() {
+    detail.replaceChildren(node('h2', company.label || company.instanceId)); note(detail, 'Агенты компании');
+    const grid = node('div', '', 'grid'); grid.append(agentCard(null, () => workspace(null))); agents.forEach(a => grid.append(agentCard(a, () => workspace(a)))); detail.append(grid); detail.append(button('Подключения компании →',openProviderAccess,'access-entry quiet')); detail.append(button('Работа оператора →',openWorkJournal,'access-entry quiet'));
+  }
+  function inspect(c) {
+    peopleByAgent.clear();
+    snapshot.activity={items:[]};snapshot.tasks={users:[]};
+    company = c; agent = person = conversation = null; agents = []; page = 'agents'; transition(); chrome(); detail.replaceChildren(node('h2', c.label || c.instanceId));
+    void load(detail, () => call('instance_inspect', { instance_id:c.instanceId }), data => {
+      if (!Array.isArray(data.observed?.agents)) { note(detail, 'Этот сервер не предоставил список агентов. Используйте текстовые инструменты с его native contract.'); return; }
+      agents = data.observed.agents; c.observedAgents = agents; c.observedAt = new Date().toLocaleTimeString(); renderAgents();
+    });
+  }
+  function workspace(a, p = null, selectedTab = company.runtime === 'core' ? 'activity' : 'dialogues') {
+    agent = a; person = p; conversation = null; page = 'workspace'; tab = selectedTab; transition(); chrome(); renderPeople(); renderTab(); window.scrollTo(0,0);
+  }
+  function renderPeople() {
+    const nav = el('people'); nav.replaceChildren(node('h3', 'Пользователи'));
+    const all = button('Все пользователи', () => workspace(agent)); all.setAttribute('aria-current', String(!person)); nav.append(all);
+    if (company.runtime !== 'core') { note(nav, 'Участники и их материалы — в «Контексте». История и рабочие экраны — в выбранной беседе.'); return; }
+    const peopleFor = (parent, a) => load(parent, () => call('agent_inspect', { instance_id:company.instanceId, agent_id:a.id }), data => {
+      const people = peopleRows(data.people);
+      peopleByAgent.set(a.id,people);
+      note(parent, 'По последней активности · новые сверху');
+      const appendPerson = (target, p) => {
+        const b = button(userName(p), () => workspace(a, p)); b.dataset.userId = String(p.userId); b.title = 'ID ' + p.userId;
+        b.setAttribute('aria-current', String(agent?.id === a.id && String(person?.userId) === String(p.userId)));
+        const handle = username(p);
+        if (handle && !userName(p).toLowerCase().includes(handle.toLowerCase())) note(b, handle);
+        if (!displayName(p) && !handle) note(b, 'Имя аккаунта не сохранено');
+        note(b, Number.isFinite(activityTime(p)) ? 'Активность: ' + new Date(activityTime(p)).toLocaleString('ru-RU') : 'Дата активности неизвестна');
+        target.append(b);
+      };
+      people.filter(p => Number(p.userId) > 0).forEach(p => appendPerson(parent, p));
+      const groups = people.filter(p => Number(p.userId) < 0);
+      if (groups.length) section(parent, 'Групповые чаты · ' + groups.length, body => groups.forEach(p => appendPerson(body, p)));
+      if (!people.length) note(parent, 'В этом срезе пользователей нет. История справа может содержать другие retained-беседы.');
+    });
+    if (agent) void peopleFor(nav, agent);
+    else { note(nav, 'Раскройте агента для списка людей. Одинаковые имена не объединяются.'); agents.forEach(a => section(nav, agentName(a), body => void peopleFor(body, a))); }
+  }
+  function renderTab() {
+    detail.replaceChildren();
+
+    detail.append(node('h2', agentName(agent) + (person ? ' / ' + userName(person) : '')));
+    const tabs = node('div', '', 'row');
+    [...(company.runtime === 'core' ? [['activity','Обращения']] : []),['dialogues','Чаты'],['tasks','Запланировано'],['context','Контекст'],['settings','Настройки агента']].forEach(([id,label]) => {
+      const b = button(label, () => { if(id!==tab){inspectionTarget=null;currentTask=null;conversation=null;sourceRefs=[];selectedMessageIds=[];generation++} tab = id; selectContext(); renderTab(); }, 'quiet'); b.setAttribute('aria-current', String(tab === id)); tabs.append(b);
+    }); detail.append(tabs); const body = node('div', ''); detail.append(body);
+    if (tab === 'activity' || tab === 'messages') activity(body);
+    else if (tab === 'tasks') tasksView(body);
+    else if (tab === 'dialogues') { if (conversation) history(body, conversation); else conversations(body); }
+    else if (tab === 'context') contextInspector(body); else if (tab === 'surfaces') staffSurfaces(body); else agentInspector(body);
+  }
+  function openConversation(c, knownPerson, messageIds = []) {
+    if (company.runtime === 'core') {
+      const exactAgent = agents.find(a => a.id === c.agentId);
+      if (!exactAgent || !Number.isSafeInteger(Number(c.userId)) || !Number(c.userId)) { status.textContent = 'Точная пара агент/пользователь не подтверждена. Прочитайте беседу через Operator.'; return; }
+      person = knownPerson || (agent?.id === exactAgent.id && String(person?.userId) === String(c.userId) ? person : { userId:c.userId });
+      agent = exactAgent; conversation = c; tab = 'dialogues'; transition(); chrome(); renderPeople();
+    }
+    if (company.runtime !== 'core') {
+      agent = agents.find(a => a.id === c.agentId) || null;
+      person = null; conversation = c; tab = 'dialogues'; transition(); chrome(); renderPeople();
+    }
+    conversation = c; selectedMessageIds = messageIds.slice(); tab = 'dialogues'; selectContext(); renderTab();
+  }
+  const dateLabel = ts => Number.isFinite(Date.parse(ts)) ? new Date(ts).toLocaleString('ru-RU') : 'Время не сохранено';
+  function renderConversationList(list, conversations) {
+    const rows=[...conversations].sort((a,b)=>activityTime(b)-activityTime(a));
+    const sourceOf=c=>(!c.channel||c.channel==='unknown')?'unspecified':c.channel;
+    const sourceName=k=>({telegram:'Telegram',edge:'Application',unspecified:'Источник не указан'})[k]||k;
+    const shortDate=value=>{
+      const d=new Date(value);return Number.isFinite(d.getTime())?d.toLocaleString('ru-RU',{timeZone:'Europe/Moscow',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Дата не сохранена';
+    };
+    const filters=node('div','','chat-filters');filters.setAttribute('aria-label','Источник чата');
+    const table=node('div','','chat-list');
+    const heading=node('div','','chat-columns');heading.append(node('span','Чат'),node('span','Источник'),node('span','Последняя активность'));
+    table.append(heading);list.append(filters,table);
+    const rendered=[];
+    for(const c of rows){
+      const p=peopleByAgent.get(c.agentId)?.find(p=>String(p.userId)===String(c.userId));
+      const participant=userName(p||{userId:c.userId});
+      const group=c.logicalSessionId?.startsWith('group-');
+      const source=sourceOf(c);
+      const savedTitle=c.title&&!/^-?\d+$/.test(c.title)&&c.title!==participant?c.title:'';
+      const title=savedTitle||(group?'Групповой чат':source==='telegram'?(person?'Личная переписка':participant):'Диалог без названия');
+      const secondary=[group&&!savedTitle?'Название не сохранено':!person&&title!==participant?participant:'',!agent?agentName(agents.find(a=>a.id===c.agentId)||{id:c.agentId}):''].filter(Boolean).join(' · ');
+      const row=button('',()=>openConversation(c,p));row.classList.add('chat-session');row.dataset.sessionKey=c.sessionKey;
+      const text=node('span','','chat-main');text.append(node('span',title,'chat-title'));if(secondary)text.append(node('span',secondary,'chat-description'));
+      const badge=node('span',sourceName(source),'chat-source');if(source==='unspecified')badge.classList.add('unspecified');
+      const time=node('time',shortDate(c.lastActive),'chat-date');time.title=dateLabel(c.lastActive);
+      row.append(text,badge,time,node('span','›','chat-arrow'));table.append(row);rendered.push({row,source});
+    }
+    const filterButtons=[];
+    for(const key of ['all',...new Set(rows.map(sourceOf))]){
+      const count=key==='all'?rows.length:rows.filter(c=>sourceOf(c)===key).length;
+      const label=key==='all'?'Все':sourceName(key);
+      const control=button('',()=>{
+        for(const item of rendered)item.row.hidden=key!=='all'&&item.source!==key;
+        for(const item of filterButtons)item.button.setAttribute('aria-pressed',String(item.key===key));
+      },'chat-filter');control.setAttribute('aria-pressed',String(key==='all'));
+      control.append(node('span',label),node('span',String(count),'chat-count'));filters.append(control);filterButtons.push({key,button:control});
+    }
+    if(!rows.length)note(list,'Чатов пока нет.');
+  }
+  function readableMessage(value) {
+    const view=parseMessageView(value);return [view.text,...view.attachments.map(a=>a.name)].filter(Boolean).join('\n');
+  }
+  function renderMessageContent(parent, value, role) {
+    const view=parseMessageView(value,role);
+    if(view.attachments.length){
+      const files=node('div','','message-attachments');
+      const kinds={document:'Документ','audio file':'Аудио',photo:'Фото',video:'Видео','voice message':'Голосовое'};
+      for(const file of view.attachments)files.append(node('span',(kinds[file.kind]||'Файл')+' · '+file.name,'message-attachment'));
+      parent.append(files);
+    }
+    if(view.text)parent.append(node('div',view.text));
+    else if(!view.attachments.length)parent.append(node('div','Текст сообщения отсутствует.','muted'));
+    if(view.metadata.length||view.attachments.length){
+      const details=node('details','','message-technical');details.append(node('summary','Технические данные'));
+      const names={tg_chat_id:'ID чата Telegram',tg_msg_id:'ID сообщения Telegram',tg_dttm:'Время Telegram (UTC)',tg_timezone:'Часовой пояс',tg_local_dttm:'Местное время',tg_calendar_authoritative:'Календарь для относительных дат',tg_media_group_count:'Файлов в группе',tg_media_group_msg_ids:'Сообщения группы'};
+      for(const field of view.metadata){const row=node('div','','message-meta-row');row.append(node('span',names[field.key]||field.key,'muted'),node('span',field.value));details.append(row)}
+      for(const file of view.attachments){const row=node('div','','message-meta-row');row.append(node('span',file.name,'muted'),node('span',file.path));details.append(row)}
+      parent.append(details);
+    }
+  }
+  function intentCards(parent, messages) {
+    const episodes=activityEpisodes(messages);
+    const toolbar=node('div','','list-toolbar');
+    const count=node('span',episodes.length+' обращений','list-count');
+    const search=node('input','');search.type='search';search.placeholder='Найти обращение';search.setAttribute('aria-label',search.placeholder);
+    toolbar.append(count,search);parent.append(toolbar);
+    const list=node('div','','intent-list');parent.append(list);
+    const rendered=[];
+    for(const e of episodes){
+      const label=intentLabels.find(x=>x.instance_id===company.instanceId&&x.agent_id===e.agentId&&x.session_key===e.sessionKey&&e.messageIds.includes(x.message_id));
+      const title=label?.title||(e.requestMissing?'Продолжение переписки':intentPreview(e.title).slice(0,160)||'Обращение без текста');
+      const replies=e.messages.filter(m=>m.role==='assistant'&&!m.preview?.startsWith('[Human operator'));
+      const visibleMessages=e.messages;
+      const description=label?.summary||(replies.length?'Ответ: '+intentPreview(replies.at(-1).preview||'').slice(0,180):'Ответ пока не загружен.');
+      const box=node('details','','intent');box.dataset.intentId=e.id;
+      const summary=node('summary','');box.append(summary);
+      const main=node('div','','intent-main');main.append(node('div',title,'intent-title'));
+      if(description){
+        const answer=node('div',description,'intent-answer');
+        const outcome=label?.outcome?.status;
+        if(outcome){answer.classList.add('outcome-'+outcome);answer.dataset.outcome=outcome;answer.title={blocked:'По ответу агента: выполнение заблокировано',partial:'По ответу агента: выполнено частично',reported_success:'Агент сообщил об успехе; принятие пользователем проверяется отдельно'}[outcome];}
+        main.append(answer);
+      }
+      if(!person) main.append(node('div',userName({userId:e.userId,displayName:e.userName,username:e.username}),'intent-person'));
+      const meta=node('div','','intent-meta');
+      meta.append(node('time',new Date(e.startedAt).toLocaleString('ru-RU',{timeZone:'Europe/Moscow',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})));
+      meta.append(node('span',visibleMessages.length+' сообщ.','muted'));
+      const state=node('span',replies.length?'Есть ответ':'Ответ не загружен','intent-state');
+      summary.append(main,meta,state,node('span','⌄','intent-chevron'));
+      const body=node('div','','intent-body');box.append(body);
+      const actions=node('div','','intent-actions');
+      const n=visibleMessages.length, word=n%100>=11&&n%100<=14?'сообщений':n%10===1?'сообщение':n%10>=2&&n%10<=4?'сообщения':'сообщений';
+      actions.append(node('span','Переписка · '+n+' '+word,'muted'));
+      actions.append(button('Обсудить обращение',()=>{
+        const ids=e.messageIds;
+        openConversation({...e,title},{userId:e.userId,displayName:e.userName,username:e.username},ids);selectContext(true);
+      },'quiet primary'));
+      body.append(actions);
+      responseAnalysis(body,e,label);
+      if(label){
+        const evidence=node('details','','intent-evidence');evidence.append(node('summary','Основания оценки'));
+        evidence.append(node('p',label.outcome?'Итог взят из ответа агента. Независимая проверка результата не приложена.':'Описание составлено по переписке. Результат отдельно не оценён.','muted'));
+        const refs=label.outcome?.evidence||label.evidence;
+        for(const ref of refs){
+          const m=visibleMessages.find(m=>m.messageId===ref.message_id);if(!m)continue;
+          evidence.append(button((m.role==='assistant'?'Ответ агента':'Сообщение пользователя')+' · '+ref.message_id,()=>{
+            const line=body.querySelector('[data-message-id="'+ref.message_id+'"]');line?.scrollIntoView({block:'center',behavior:'smooth'});line?.focus({preventScroll:true});
+          },'quiet'));
+        }
+        body.append(evidence);
+      }
+      for(const m of visibleMessages){
+        const line=node('div','','message');
+        line.append(node('strong',(m.role==='user'?'Пользователь':'Агент')+' · '+new Date(m.ts).toLocaleTimeString('ru-RU',{timeZone:'Europe/Moscow',hour:'2-digit',minute:'2-digit'})));
+        renderMessageContent(line,m.preview,m.role);
+        if(m.previewTruncated)note(line,'Сохранена только часть сообщения.');
+        line.dataset.messageId=String(m.messageId);line.tabIndex=-1;body.append(line);
+      }
+      list.append(box);rendered.push({box,text:(title+' '+description+' '+visibleMessages.map(m=>readableMessage(m.preview)).join(' ')).toLocaleLowerCase('ru')});
+    }
+    const empty=node('p','Ничего не найдено.','empty');empty.hidden=true;parent.append(empty);
+    search.addEventListener('input',()=>{
+      const q=search.value.trim().toLocaleLowerCase('ru');let found=0;
+      for(const row of rendered){row.box.hidden=!row.text.includes(q);if(!row.box.hidden)found++}
+      count.textContent=q?found+' из '+episodes.length:episodes.length+' обращений';empty.hidden=found!==0;
+    });
+  }
+// A display projection only. Original native messages remain untouched.
+function parseMessageView(value, role = 'user') {
+  const original = typeof value === 'string' ? value : '';
+  if (role !== 'user') return { text: original, metadata: [], attachments: [] };
+  const metadata = [], attachments = [];
+  let text = original;
+  const prefix = /^\s*\[(tg_(?:chat_id|msg_id|dttm|timezone|local_dttm|calendar_authoritative|media_group_count|media_group_msg_ids)):\s*([^\]]*)\]\s*/u;
+  for (;;) {
+    const match = text.match(prefix);
+    if (!match) break;
+    metadata.push({ key: match[1], value: match[2] });
+    text = text.slice(match[0].length);
+  }
+  // Only recognize the exact native attachment envelope, preserving other brackets.
+  text = text.replace(/\[User sent (?:a|an) (document|audio file|photo|video|voice message): "([^"\n]+)" saved at ([^\]\n]+)\]/gu,
+    (_, kind, name, path) => { attachments.push({ kind, name, path }); return ''; });
+  return { text: text.trim(), metadata, attachments };
+}
+
+  function taskSchedule(entry) {
+    if(entry.schedule==='0 * * * *')return 'Каждый час';
+    if(entry.schedule)return entry.schedule;
+    if(entry.run_at)return new Date(entry.run_at).toLocaleString('ru-RU',{timeZone:'Europe/Moscow',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    return 'Без расписания';
+  }
+  function tasksView(parent) {
+    currentTask=null;renderPinned();
+    if(!agent||!person){note(parent,'Выберите агента и пользователя для чтения расписания.');return}
+    void load(parent,()=>call('reminders_read',base()),data=>{
+      if(data.parseErrors?.length){note(parent,'Источник расписания содержит ошибки; проверьте его в чате.');return}
+      snapshot.tasks={captured_at:new Date().toISOString()};
+      renderTasks(parent,{agent_id:agent.id,users:[{user_id:person.userId,reminders:data.reminders}]});
+    });
+  }
+  function renderTasks(parent,data) {
+    const owners=data.users.filter(u=>!person||String(u.user_id)===String(person.userId));
+    const rows=owners.flatMap(u=>u.reminders.entries.map(entry=>({...entry,user_id:u.user_id,agent_id:data.agent_id,revision:u.reminders.revision})));
+    const groups=[['Регулярные',rows.filter(e=>e.schedule)],['Разовые',rows.filter(e=>!e.schedule)]];
+    if(!rows.length){note(parent,'Сохранённых задач нет.');return}
+    let closePrevious=null;
+    for(const [label,entries] of groups){
+      if(!entries.length)continue;
+      parent.append(node('h3',label+' · '+entries.length,'task-heading'));
+      for(const entry of entries){
+        const box=node('section','','task-card');box.dataset.taskId=entry.id;
+        const row=node('div','','task-row');
+        const name=node('strong',entry.label,'task-name');row.append(name);
+        const schedule=node('span',taskSchedule(entry),'task-schedule');
+        schedule.title=entry.schedule?(entry.timezone||'Часовой пояс не указан'):entry.run_at?dateLabel(entry.run_at)+' МСК':'Расписание не указано';row.append(schedule);
+        const enabled=node('span',entry.enabled===false?'Выкл.':entry.enabled===true?'Вкл.':'—','task-enabled');
+        enabled.title=entry.enabled===false?'Задача выключена':entry.enabled===true?'Задача включена':'Состояние не указано';row.append(enabled);
+        const body=node('div','','task-body');body.hidden=true;body.id='task-body-'+entry.id;
+        let activePanel=null;
+        const close=()=>{body.hidden=true;activePanel=null;promptButton.setAttribute('aria-expanded','false');runsButton.setAttribute('aria-expanded','false');};
+        const show=panel=>{
+          if(activePanel===panel){close();closePrevious=null;currentTask=null;renderPinned();return}
+          if(closePrevious)closePrevious();closePrevious=close;
+          activePanel=panel;body.hidden=false;body.replaceChildren();
+          promptButton.setAttribute('aria-expanded',String(panel==='prompt'));runsButton.setAttribute('aria-expanded',String(panel==='runs'));
+          currentTask=entry;renderPinned();
+          const toolbar=node('div','','task-panel-head');toolbar.append(node('h3',panel==='prompt'?'Промпт задачи':'История запусков'),button('Обсудить задачу',()=>{currentTask=entry;selectContext(true);},'quiet'));body.append(toolbar);
+          if(panel==='prompt')body.append(node('div',entry.prompt||'Промпт не указан.','task-prompt'));
+          else body.append(node('p','В текущей выгрузке нет записей запусков этой задачи.','muted'));
+        };
+        const promptButton=button('Промпт',()=>show('prompt'),'task-action');
+        const runsButton=button('Запуски —',()=>show('runs'),'task-action');runsButton.title='Последнее выполнение: нет данных';
+        for(const b of [promptButton,runsButton]){b.setAttribute('aria-controls',body.id);b.setAttribute('aria-expanded','false');}
+        row.append(promptButton,runsButton);box.append(row);
+        if(!person){const p=peopleByAgent.get(entry.agent_id)?.find(p=>String(p.userId)===String(entry.user_id));box.append(node('small',userName(p||{userId:entry.user_id}),'task-owner'));}
+        box.append(body);parent.append(box);
+      }
+    }
+  }
+
+  function inspectionSelect(target, buttonElement) {
+    inspectionTarget={...target,instance_id:company.instanceId,agent_id:Object.hasOwn(target,'agent_id')?target.agent_id:agent?.id||null,user_id:target.user_id??(target.read?.arguments?.selection?.scope==='user_context'?String(target.read.arguments.selection.userId):null)};
+    sourceRefs=target.read? [{...target.read,status:'not_loaded'}] : [];
+    document.querySelectorAll('[data-inspection-select]').forEach(b=>b.setAttribute('aria-pressed','false'));
+    if(buttonElement)buttonElement.setAttribute('aria-pressed','true');
+    renderBrowsing();
+  }
+  function inspectionButton(label,target) {
+    const b=button(label,()=>inspectionSelect(target,b),'quiet');b.dataset.inspectionSelect='';b.setAttribute('aria-pressed','false');return b;
+  }
+  function inspectionHeading(parent,title,subtitle) {
+    const head=node('div','','inspection-heading');head.append(node('h3',title),node('p',subtitle,'muted'));parent.append(head);
+  }
+  function inspectionSection(parent,title,detail,render) {
+    const box=node('details','','inspection-section');
+    const summary=node('summary');summary.append(node('strong',title),node('span',detail,'muted'));box.append(summary);
+    const body=node('div','','inspection-content');box.append(body);let loaded=false;
+    box.addEventListener('toggle',()=>{if(box.open&&!loaded){loaded=true;render(body)}});parent.append(box);return box;
+  }
+  function inspectionRow(parent,label,value) {
+    const row=node('div','','inspection-row');row.append(node('span',label,'muted'),node('span',value));parent.append(row);
+  }
+  function inspectionAgent(parent,selectedTab) {
+    if(agent)return true;
+    note(parent,'Выберите агента, чтобы открыть его настройки и материалы.');
+    agents.forEach(a=>parent.append(agentCard(a,()=>workspace(a,null,selectedTab))));return false;
+  }
+  function agentInspector(parent) {
+    if(!inspectionAgent(parent,'settings'))return;
+    inspectionHeading(parent,'Настройки агента','Действуют для всех пользователей · снимок '+dateLabel(snapshot.capturedAt));
+    inspectionSection(parent,'Основные',agent.model||'Модель не указана',body=>{
+      inspectionRow(body,'Имя',agent.name);inspectionRow(body,'Роль',agent.role||'Не указана');
+      inspectionRow(body,'Модель',agent.model||'Не указана');inspectionRow(body,'Effort','Не загружен');
+      inspectionRow(body,'Провайдер',providerName(agent.runtime||'Не указан'));
+      body.append(inspectionButton('Выбрать настройки',{kind:'configuration',label:'Основные настройки агента',read:{tool:'agent_configuration_read',arguments:base()},state:'snapshot'}));
+    }).open=true;
+    inspectionSection(parent,'Доступ к модели','Провайдеры и назначение аккаунта',body=>{
+      inspectionRow(body,'Провайдеры в настройках',(agent.providerPool||[]).map(providerName).join(' · ')||'Не загружены');
+      inspectionRow(body,'Аккаунт или пул','Назначение не загружено');
+      inspectionRow(body,'Переключение','Правило не загружено');
+      body.append(button('Подключения компании →',openProviderAccess,'quiet'));
+    }).open=true;
+    inspectionSection(parent,'Назначенные подключения',(agent.assignedConnectors||[]).length+' назначено',body=>{
+      for(const name of agent.assignedConnectors||[])inspectionRow(body,name,'Назначен · связь не проверена');
+      body.append(inspectionButton('Выбрать коннекторы',{kind:'connectors',label:'Коннекторы',state:'assignment_only',read:{tool:'agent_configuration_read',arguments:base()}}));
+    });
+    inspectionSection(parent,'Доступы агента','Область ключей не проверена',body=>{
+      note(body,'Для назначенных подключений нужно уточнить: общий доступ компании, отдельный ключ агента или личный вход пользователя.');
+      body.append(inspectionButton('Выбрать настройки подключений',{kind:'connector_assignments',label:'Доступы агента',credential_scope:'unknown',state:'assignment_only',read:{tool:'agent_configuration_read',arguments:base()}}));
+      body.append(button('Подключения компании →',openProviderAccess,'quiet'));
+    });
+  }
+
+  function contextInspector(parent) {
+    if(!inspectionAgent(parent,'context'))return;
+    const skillNames={
+      'teamon-api-access-triage':'Диагностика доступа к API','teamon-api-data-contracts':'Контракты данных API',
+      'teamon-bounded-job-waits':'Ожидание операций','teamon-context-continuity':'Продолжение работы с контекстом',
+      'teamon-document-fidelity':'Сохранность документов','teamon-external-write-receipts':'Подтверждение изменений',
+      'teamon-message-delivery-trace':'Проверка доставки сообщений','teamon-schedule-delivery-check':'Проверка задач по расписанию',
+      'teamon-target-capability-map':'Возможности выбранной системы','teamon-user-surface-acceptance':'Проверка интерфейса'
+    };
+    const categories=[
+      {id:'instructions',name:'Инструкции',color:'#ad97d0',help:'Костюм и правила поведения.'},
+      {id:'tools',name:'Инструменты и навыки',color:'#aa97ed',help:'Назначения известны; загрузка в конкретный ответ не измерена.'},
+      {id:'environment',name:'Канал и окружение',color:'#d5a064',help:'Служебные данные канала и окружение ответа.'},
+      {id:'conversation',name:'Переписка',color:'#7fa4cc',help:'Сохранённые сообщения. Их объём в запросе модели неизвестен.'},
+      {id:'materials',name:'Материалы и память',color:'#55b7bd',help:'Знания компании, память и прочитанные материалы. Факт чтения требует трассировки.'}
+    ];
+    const items=[];
+    const add=(category,id,title,scope,type,status,description,target,content)=>items.push({category,id,title,scope,type,status,description,target,content});
+    add('instructions','platform','Правила TeamON','TeamON','Правила','Не загружено','Каталог правил платформы ещё не подключён к этому пульту.',{kind:'context_inventory',label:'Правила TeamON',state:'not_connected'});
+    for(const path of ['AGENTS.md','CLAUDE.md'])add('instructions',path,'Костюм · '+path,'Агент','Инструкции','Не загружено','Текст и активная версия файла ещё не прочитаны.',{kind:'document',label:'Костюм / '+path,state:'not_loaded',read:{tool:'agent_document_read',arguments:{...base(),target:{scope:'costume',path}}}});
+    for(const name of agent.assignedSkills||[])add('tools',name,skillNames[name]||name,'Агент','Навык','Назначен','Назначение сохранено. Текст, способ загрузки и использование в ответе ещё не проверены.',{kind:'skill',label:skillNames[name]||name,skill_name:name,state:'assignment_only',read:{tool:'agent_documents_list',arguments:{...base(),selection:{scope:'agent_skill',limit:100}}}});
+    for(const name of agent.tools||[])add('tools','tool:'+name,name,'Агент','Инструмент','Настроен','Инструмент указан в конфигурации. Схема и результаты вызовов в снимок не загружены.',{kind:'tool',label:'Инструмент / '+name,state:'configuration_only',read:{tool:'agent_configuration_read',arguments:base()}});
+    add('environment','channel',agent.telegramBot?'Telegram':'Канал не загружен','Агент','Канал',agent.telegramBot?'Настроен':'Не загружено','Подключённый бот из конфигурации. Это не описание окружения каждого ответа.',{kind:'channel',label:'Канал Telegram',state:'snapshot'},agent.telegramBot?'Бот: @'+agent.telegramBot:undefined);
+    const messages=snapshot.activity.items.filter(m=>m.agentId===agent.id&&(!person||String(m.userId)===String(person.userId)));
+    add('conversation','history','Сохранённая переписка','Пользователь','История',messages.length+' сообщений','Количество относится к загруженному снимку, а не к окну модели.',{kind:'history_inventory',label:'Сохранённая переписка',state:'snapshot',user_id:person?String(person.userId):null},'Переписку можно открыть во вкладках «Чаты» и «Обращения».');
+    for(const [id,title,scope,native] of [['company','Знания компании','Компания','company_context'],['agent','Знания агента','Агент','agent_context'],['user','Документы пользователя','Пользователь','user_context']]){
+      const available=id!=='user'||!!person;
+      add('materials',id,title,scope,'Документы',available?'Не загружено':'Выберите пользователя','Каталог и тексты ещё не прочитаны. Отсутствие их в снимке не означает пустую базу знаний.',{kind:'context_inventory',label:title,state:'not_loaded',...(available?{read:{tool:'agent_documents_list',arguments:{...base(),selection:{scope:native,limit:100,...(id==='user'?{userId:Number(person.userId)}:{})}}}}:{})});
+    }
+    add('materials','memory','Память и текущая работа','Пользователь','Память',person?'Не загружено':'Выберите пользователя','Читаются в контексте конкретной беседы. Её нужно выбрать в «Чатах».',{kind:'memory',label:'Память и текущая работа',state:'not_loaded',user_id:person?String(person.userId):null});
+    const root=node('div','','context-workbench');parent.append(root);
+    const overview=node('section','','context-overview');const line=node('div','','context-overview-title');line.append(node('strong','Состав контекста'),node('span','Токены — · снимок запроса не получен','muted'));overview.append(line);
+    const bar=node('div','Объём и свободное место пока неизвестны','context-meter-unknown');overview.append(bar);
+    const legend=node('div','','context-legend');overview.append(legend);root.append(overview);
+    const workspace=node('div','','context-browser');const side=node('aside','','context-sidebar');side.setAttribute('aria-label','Состав контекста');const detail=node('section','','context-document');detail.setAttribute('aria-label','Выбранный материал');workspace.append(side,detail);root.append(workspace);
+    const search=node('input');search.type='search';search.placeholder='Найти в контексте';search.setAttribute('aria-label','Найти в контексте');side.append(search);
+    const select=node('select');select.setAttribute('aria-label','Источник материала');for(const name of ['Все источники','TeamON','Компания','Агент','Пользователь']){const option=node('option',name);option.value=name;select.append(option)}side.append(select);
+    const tree=node('div','','context-tree');side.append(tree);let category='all',query='',scopeFilter='Все источники',selected=null;const legendButtons=[];
+    function showItem(item,b){
+      selected=item.id;tree.querySelectorAll('.context-leaf').forEach(x=>x.setAttribute('aria-current',String(x.dataset.itemId===selected)));
+      inspectionSelect(item.target);detail.replaceChildren();
+      const tag=node('div','','context-document-tags');tag.append(node('span',item.scope,'context-scope'),node('span',item.type,'muted'),node('span',item.status,'muted'));
+      detail.append(node('h3',item.title),tag,node('p',item.description,'context-document-copy'));
+      if(item.content)detail.append(node('p',item.content,'context-document-body'));
+      if(item.type==='Навык')detail.append(node('code',item.target.skill_name,'context-source-id'));
+      const state=node('div','','context-document-facts');inspectionRow(state,'Объём в запросе','Не измерен');inspectionRow(state,'Загрузка в ответ','Не подтверждена');detail.append(state);
+      if(item.target.read)detail.append(inspectionButton('Выбрать для чтения в чате',item.target));
+      const noteText=item.target.read?'Для чтения свежих данных нужен вход в Operator MCP.':'Содержимое этого раздела ещё не загружено.';
+      detail.append(node('p',noteText,'context-document-note'));
+    }
+    function renderTree(){
+      tree.replaceChildren();let visible=0;let selectedVisible=false;
+      for(const cat of categories){
+        if(category!=='all'&&category!==cat.id)continue;
+        const matching=items.filter(i=>i.category===cat.id&&(scopeFilter==='Все источники'||i.scope===scopeFilter)&&(!query||(i.title+' '+i.type+' '+(i.target.skill_name||'')).toLocaleLowerCase('ru').includes(query)));
+        if(!matching.length)continue;visible+=matching.length;selectedVisible ||= matching.some(item=>item.id===selected);
+        const group=node('details','','context-category');group.open=!!query||category===cat.id||cat.id==='instructions'||cat.id==='tools';
+        const summary=node('summary');const dot=node('span','','context-dot');dot.style.background=cat.color;summary.append(dot,node('strong',cat.name),node('small',String(matching.length),'muted'));group.append(summary);
+        for(const item of matching){const b=button('',()=>showItem(item,b),'context-leaf');b.dataset.itemId=item.id;b.setAttribute('aria-current',String(item.id===selected));
+          const text=node('span','','context-leaf-text');text.append(node('span',item.title),node('small',item.type+' · '+item.status,'muted'));b.append(text,node('span',item.scope,'context-scope'));group.append(b)}tree.append(group);
+      }
+      if(!visible)tree.append(node('p','Ничего не найдено.','muted'));
+      if(selected&&!selectedVisible){selected=null;inspectionTarget=null;sourceRefs=[];renderBrowsing();detail.replaceChildren(node('p','Выберите материал слева.','muted'))}
+    }
+    for(const cat of [{id:'all',name:'Все'},...categories]){
+      const b=button('',()=>{category=cat.id;legendButtons.forEach(x=>x.button.setAttribute('aria-pressed',String(x.id===category)));renderTree()},'context-legend-button');b.setAttribute('aria-pressed',String(cat.id==='all'));b.title=cat.help||'Все разделы';
+      if(cat.color){const dot=node('span','','context-dot');dot.style.background=cat.color;b.append(dot)}b.append(node('span',cat.name));legend.append(b);legendButtons.push({id:cat.id,button:b});
+    }
+    search.addEventListener('input',()=>{query=search.value.trim().toLocaleLowerCase('ru');renderTree()});select.addEventListener('change',()=>{scopeFilter=select.value;renderTree()});
+    renderTree();showItem(items.find(i=>i.id==='AGENTS.md'));
+  }
+  function responseAnalysis(body,e,label) {
+    const section=node('details','','response-analysis');const summary=node('summary','Разбор ответа');section.append(summary);
+    const content=node('div','','inspection-content');section.append(content);
+    const stages=node('div','','response-stages');
+    for(const [title,value,status] of [
+      ['Запрос',e.requestMissing?'Начало не загружено':'Сохранён',e.requestMissing?'pending':'ready'],
+      ['Контекст ответа','Снимок не загружен','pending'],
+      ['Ход выполнения','Трассировка не загружена','pending'],
+      ['Результат',label?.outcome?'Есть вывод по ответу':'Есть переписка','ready']
+    ]){const card=node('div','','response-stage '+status);card.append(node('strong',title),node('span',value));stages.append(card)}
+    content.append(stages);
+    note(content,'Здесь связываем материалы конкретного ответа, вызовы инструментов, их результаты и итог. Текущие настройки не доказывают, что использовалось тогда.');
+    if(label?.summary)inspectionRow(content,'Итог по переписке',label.summary);
+    inspectionRow(content,'Принятие пользователем','Нет подтверждения');
+    inspectionRow(content,'Извлечённые уроки','Ещё не разобрано');
+    inspectionSection(content,'Модель и расход','Данные выполнения не загружены',panel=>{
+      const metrics=node('div','','usage-metrics');
+      for(const name of ['Входные токены','Выходные токены','Из кэша','Стоимость']){const cell=node('div');cell.append(node('span',name,'muted'),node('strong','—'));metrics.append(cell)}panel.append(metrics);
+      inspectionRow(panel,'Модель и провайдер','Не установлены для этого ответа');
+      inspectionRow(panel,'Аккаунт / пул','Не установлен для этого ответа');
+      inspectionRow(panel,'Переключения и повторы','Трассировка не загружена');
+      note(panel,'Расход учитывается по всем попыткам выполнения. Лимиты аккаунта и заполнение контекста показываются отдельно.');
+    });
+    const target={kind:'response_analysis',label:'Разбор: '+(label?.title||'обращение'),state:'messages_only',agent_id:e.agentId,user_id:String(e.userId),session_key:e.sessionKey,message_ids:e.messageIds,turn_id:null,trace_status:'not_loaded',usage_status:'not_loaded',routing_status:'not_loaded',read:{tool:'conversation_read',arguments:{instance_id:company.instanceId,session_key:e.sessionKey,limit:30}}};
+    section.addEventListener('toggle',()=>{if(section.open)inspectionSelect(target)});
+    content.append(inspectionButton('Выбрать ответ для разбора',target));
+    const facts=node('details','','analysis-gaps');facts.append(node('summary','Что ещё нужно для полного разбора'));
+    const ul=node('ul');for(const value of ['Контекст на момент ответа: версии инструкций и переданные материалы.','События выполнения: вызовы инструментов, ошибки, повторы и результат доставки.','Точная связь событий с ответом. В этом снимке ID выполнения не загружен.'])ul.append(node('li',value));facts.append(ul);content.append(facts);body.append(section);
+  }
+
+  function providerName(id) {return ({chatgpt:'ChatGPT',claude:'Claude',opencode:'OpenCode'})[id]||id}
+  function openProviderAccess() {
+    agent=person=conversation=null;page='providers';tab='providers';transition();chrome();
+    detail.replaceChildren();
+    const heading=node('div','','access-heading');
+    heading.append(node('h2','Подключения компании'),button('К агентам',()=>{page='agents';tab='activity';transition();chrome();renderAgents()},'quiet'));detail.append(heading);
+    detail.append(node('p',company.label+' · коннекторы, ключи и доступ к моделям','muted'));
+    const connectors=new Map();
+    for(const a of agents)for(const name of a.assignedConnectors||[]){
+      if(!connectors.has(name))connectors.set(name,[]);connectors.get(name).push(a);
+    }
+    inspectionSection(detail,'Коннекторы и MCP','Каталог компании не загружен',body=>{
+      for(const [name,assigned] of connectors){
+        inspectionSection(body,name,'Назначен: '+assigned.map(a=>a.name).join(' · '),panel=>{
+          inspectionRow(panel,'Тип подключения','Не загружен');
+          inspectionRow(panel,'Кому назначен',assigned.map(a=>a.name).join(' · '));
+          inspectionRow(panel,'Доступ','Уровень ключа ещё не проверен');
+          inspectionRow(panel,'Соединение','Не проверено');
+          panel.append(inspectionButton('Выбрать подключение',{kind:'connector_definition',label:'Подключение / '+name,agent_id:null,user_id:null,connector:name,credential_scope:'unknown',state:'assignment_only',read:{tool:'agent_configuration_read',arguments:{instance_id:company.instanceId,agent_id:assigned[0].id}}}));
+        });
+      }
+      note(body,'Показаны подключения из назначений агентам. Полный каталог компании ещё не загружен.');
+    }).open=true;
+    inspectionSection(detail,'Ключи и авторизации','Компания · агент · пользователь',body=>{
+      inspectionRow(body,'Компания','Общие доступы — состав не загружен');
+      inspectionRow(body,'Агент','Отдельные доступы — состав не загружен');
+      inspectionRow(body,'Пользователь','Личные подключения — проверяются для выбранного пользователя');
+      note(body,'У каждого коннектора свой уровень доступа. Назначение агенту не создаёт копию ключа.');
+    });
+    const entries=new Map();
+    for(const a of agents)for(const id of new Set([a.runtime,...(a.providerPool||[])].filter(Boolean))){
+      if(!entries.has(id))entries.set(id,[]);entries.get(id).push(a);
+    }
+    const models=node('details','','inspection-section');models.append(node('summary','Доступ к моделям'));const access=node('div','','access-list');models.append(access);detail.append(models);
+    for(const [id,assigned] of entries){
+      const inventory=snapshot.providerAccounts?.instance_id===company.instanceId&&snapshot.providerAccounts.provider===id?snapshot.providerAccounts:null;
+      const box=inspectionSection(access,providerName(id),inventory?inventory.accounts.length+' аккаунтов':'Аккаунты не загружены',body=>{
+        inspectionRow(body,'Используют',assigned.map(a=>a.name).join(' · '));
+        if(inventory){
+          for(const account of inventory.accounts){
+            const state={pending:'Ожидает входа',ready:'Вход выполнен',cancelled:'Вход отменён'}[account.state];
+            const mode={enabled:'Включён',draining:'Без новых задач',disabled:'Отключён'}[account.mode];
+            inspectionSection(body,account.name,mode+' · '+state,panel=>{
+              inspectionRow(panel,'Новые задачи',account.eligibleForNew?'Принимает':'Не принимает');
+              inspectionRow(panel,'Ограничение до',account.cooldownUntil?dateLabel(account.cooldownUntil):'Не указано');
+              panel.append(inspectionButton('Выбрать аккаунт',{kind:'provider_account',label:providerName(id)+' / '+account.name,agent_id:null,user_id:null,provider:id,account_id:account.name,state:'snapshot',captured_at:inventory.captured_at}));
+            });
+          }
+          if(!inventory.accounts.length)note(body,'Источник вернул пустой список аккаунтов.');
+          note(body,'Аккаунты · снимок '+dateLabel(inventory.captured_at));
+        }else{
+          inspectionRow(body,'Аккаунты и ключи','Список не получен');
+          inspectionRow(body,'Пул аккаунтов','Состав и состояние не получены');
+        }
+        inspectionRow(body,'Остаток и сброс лимита','Нет данных провайдера');
+        inspectionRow(body,'Правило выбора','Не получено');
+        const target={kind:'provider_access',label:'Доступ к '+providerName(id),agent_id:null,user_id:null,provider:id,state:'not_loaded'};
+        body.append(inspectionButton('Выбрать для проверки',target));
+        if(id==='chatgpt')body.append(inspectionButton('Выбрать проверку входа',{...target,kind:'provider_auth',label:'Вход в ChatGPT',read:{tool:'provider_auth_read',arguments:{instance_id:company.instanceId}}}));
+        note(body,id==='chatgpt'?'В Core есть пул аккаунтов. Чтение и управление пулом ещё не подключены к этому пульту.':'В снимке есть назначение провайдера. Способ входа и состояние доступа ещё не проверены.');
+      });
+      box.dataset.provider=id;
+    }
+    if(!entries.size)note(access,'Провайдеры не загружены.');
+    inspectionSection(detail,'Назначения агентам',agents.length+' в снимке',body=>{
+      for(const a of agents){const row=button('',()=>workspace(a,null,'settings'),'access-binding');
+        row.setAttribute('aria-label','Настройки '+a.name+' · '+providerName(a.runtime||'Не указан')+' · '+(a.model||'Модель не указана'));
+        row.append(node('strong',a.name),node('span',[providerName(a.runtime||'Не указан'),a.model||'Модель не указана'].join(' · ')),node('small','Аккаунт / пул — не загружен','muted'),node('span','→'));body.append(row)}
+    });
+    const help=node('details','','access-help');help.append(node('summary','Что здесь учитывается'));
+    const list=node('dl');
+    for(const [term,description] of [
+      ['Аккаунт или API-ключ','Один доступ к провайдеру: состояние, доступность для новых задач и лимит, если он известен.'],
+      ['Пул','Набор доступов одного провайдера с правилами выбора и переключения. Назначение ChatGPT и Claude само по себе не описывает такой пул.'],
+      ['Расход','Токены и стоимость конкретного ответа — внутри «Разбора ответа».'],
+      ['Контекст','Материалы и место в окне модели — во вкладке «Контекст».']
+    ])list.append(node('dt',term),node('dd',description));help.append(list);detail.append(help);
+    detail.append(node('p','Назначения — из сохранённого снимка. Для свежей проверки нужен вход в Operator MCP.','access-note'));
+    inspectionSelect({kind:'company_connections',label:'Подключения компании',agent_id:null,user_id:null,state:'assignments_only'});
+    window.scrollTo(0,0);
+  }
+
+  async function openWorkJournal() {
+    agent = person = conversation = null;
+    page = tab = 'journal';
+    transition();
+    chrome();
+    const token = generation;
+    const companyId = company.instanceId;
+    detail.replaceChildren(node('h2', 'Работа оператора'));
+    detail.append(node('p', 'Локальный журнал · синхронизация с компанией не подключена', 'muted'));
+    const list = node('div', '', 'journal-list');
+    detail.append(list);
+    inspectionSelect({kind: 'operator_journal', label: 'Работа оператора', agent_id: null, user_id: null, state: 'local_persistent'});
+    const labels = {open: 'В работе', waiting: 'Ожидает продолжения', closed: 'Закрыт'};
+    const events = {
+      case_opened: 'Разбор открыт', case_updated: 'Следующий шаг и итог',
+      tool_started: 'Вызов начат', tool_returned: 'Инструмент вернул результат',
+      tool_failed: 'Ошибка вызова', observation_recorded: 'Наблюдение',
+      external_report: 'Запись оператора', native_receipt_observed: 'Подтверждение от Core'
+    };
+    async function request(params) {
+      return call('journal_read',{instance_id:companyId,view:params.case_id?'timeline':'cases',...params,...(params.after?{after:Number(params.after)}:{})});
+    }
+    function renderEvent(e) {
+      const event = node('div', '', 'journal-event');
+      const author = e.origin === 'operator_delegated' ? 'MCP · поручение агенту'
+        : e.type.startsWith('tool_') ? 'MCP оператора' : 'AI оператора · запись';
+      event.append(node('small', dateLabel(e.time) + ' · ' + author, 'muted'), node('strong', events[e.type] || e.type));
+      if (e.evidence) {
+        const n = e.evidence;
+        inspectionRow(event, 'Статус источника', {
+          prepared: 'Подготовлено', sending: 'Отправляется', delivered: 'Доставлено',
+          unknown: 'Неизвестно', applying: 'Применяется', applied: 'Применено',
+          needs_review: 'Нужна проверка', failed: 'Ошибка', queued: 'В очереди',
+          running: 'Выполняется', completed: 'Завершено', cancelled: 'Отменено',
+          interrupted: 'Прервано'
+        }[n.status] || 'Неизвестно');
+        if (n.actor_id) inspectionRow(event, 'Автор в Core', n.actor_id);
+        if (n.context_revision) inspectionRow(event, 'Ревизия контекста', n.context_revision);
+        if (n.kind === 'consultation') inspectionRow(event, 'Внешние действия',
+          n.effects_may_have_occurred === true ? 'Могли произойти' :
+          n.effects_may_have_occurred === false ? 'Источник не отмечает возможных действий' : 'Неизвестно');
+        inspectionRow(event, 'Принятие пользователем', 'Не установлено');
+      }
+      if (e.tool) event.append(node('p', e.tool, 'muted'));
+      if (e.summary) event.append(node('p', e.summary));
+      if (e.case?.next_step) event.append(node('p', 'Далее: ' + e.case.next_step));
+      if (e.case?.conclusion) event.append(node('p', 'Итог: ' + e.case.conclusion));
+      if (e.observation) {
+        const o = e.observation;
+        event.append(node('p', o.behavior));
+        inspectionRow(event, 'Ожидалось', o.expected);
+        inspectionRow(event, 'Объект оценки', {agent: 'Агент', operator: 'Оператор', operator_assistant: 'AI оператора', integration: 'Подключение', process: 'Процесс'}[o.subject]);
+        inspectionRow(event, 'Причина · ' + ({hypothesis: 'гипотеза', supported: 'обоснована', refuted: 'опровергнута', unknown: 'неизвестна'}[o.cause_status]), o.cause || 'Не установлена');
+        inspectionRow(event, 'Оценка', {proposed: 'Предложена AI', supported: 'Поддержана оценкой AI', rejected: 'Отклонена оценкой AI', insufficient: 'Недостаточно данных'}[o.status]);
+        if (o.review_note) inspectionRow(event, 'Основание оценки', o.review_note);
+        event.append(node('small', 'Ревизия ' + o.revision + ' · независимая проверка не установлена', 'muted'));
+      }
+      if (e.type === 'tool_failed') event.append(node('p', 'Результат внешнего действия неизвестен.', 'muted'));
+      if (e.type === 'tool_returned' && e.status === 'tool_error') event.append(node('p', 'Инструмент сообщил об ошибке. Результат внешнего действия не подтверждён.', 'muted'));
+      const refs = node('details');
+      refs.append(node('summary', 'Основания'));
+      refs.append(node('pre', JSON.stringify({event_id: e.id, origin: e.origin, source_ref: e.source_ref, refs: e.refs, native: e.evidence, source_event_id: e.source_event_id, evidence_ids: e.observation?.evidence_ids}, null, 2)));
+      event.append(refs);
+      return event;
+    }
+    function renderCase(item) {
+      const box = node('details', '', 'inspection-section');
+      const summary = node('summary');
+      const title = node('strong', item.title);
+      const status = node('span', labels[item.status], 'muted');
+      summary.append(title, status);
+      const body = node('div', '', 'inspection-content');
+      box.append(summary, body);
+      list.append(box);
+      let revision = 0;
+      box.addEventListener('toggle', async () => {
+        const requestRevision = ++revision;
+        if (!box.open) return;
+        const current = () => token === generation && revision === requestRevision && box.open;
+        inspectionSelect({kind: 'operator_case', label: item.title, agent_id: null, user_id: null, case_id: item.id, state: 'local_persistent', read: {tool:'journal_read',arguments:{instance_id:companyId,case_id:item.id,view:'timeline'}}});
+        body.replaceChildren(node('p', 'Загрузка…', 'muted'));
+        const timeline = node('div', '', 'journal-timeline');
+        async function loadEvents(after) {
+          const result = await request({case_id: item.id, ...(after ? {after: String(after)} : {})});
+          if (!current()) return;
+          if (!after) {
+            const latest = result.case;
+            body.replaceChildren();
+            title.textContent = latest.title;
+            status.textContent = labels[latest.status];
+            inspectionRow(body, 'Цель', latest.objective);
+            inspectionRow(body, 'Далее', latest.next_step || (latest.status === 'closed' ? 'Разбор закрыт' : 'Ещё не записано'));
+            if (latest.conclusion) inspectionRow(body, 'Итог', latest.conclusion);
+            body.append(timeline);
+          }
+          for (const e of result.events) timeline.append(renderEvent(e));
+          if (result.next_cursor) {
+            const more = button('Ещё события', async () => {
+              more.disabled = true;
+              try { await loadEvents(result.next_cursor); more.remove(); }
+              catch { if (current()) { more.disabled = false; more.textContent = 'Повторить загрузку'; } }
+            }, 'quiet');
+            timeline.append(more);
+          }
+        }
+        try { await loadEvents(); }
+        catch { if (current()) body.replaceChildren(node('p', 'Не удалось прочитать журнал. Закройте и откройте разбор снова.', 'muted')); }
+      });
+    }
+    async function loadCases(after) {
+      const data = await request(after ? {after: String(after)} : {});
+      if (token !== generation) return;
+      if (!data.cases.length && !after) list.append(node('p', 'Локальных разборов пока нет. Журнал относится к текущему вошедшему оператору.', 'muted'));
+      for (const item of data.cases) renderCase(item);
+      if (data.next_cursor) {
+        const more = button('Ещё разборы', async () => {
+          more.disabled = true;
+          try { await loadCases(data.next_cursor); more.remove(); }
+          catch { if (token === generation) { more.disabled = false; more.textContent = 'Повторить загрузку'; } }
+        }, 'quiet');
+        list.append(more);
+      }
+    }
+    try { await loadCases(); }
+    catch { if (token === generation) list.append(node('p', 'Журнал недоступен. Для него нужен локальный сервер пульта.', 'muted')); }
+  }
+
+  function activity(parent) {
+    
+    void load(parent, () => activityData ? Promise.resolve(activityData) : call('activity_read', { ...base(), view:'messages', limit:50, ...(person ? { user_id:String(person.userId) } : {}) }), data => {
+      activityData = data;
+      const seen = new Set();
+      const messages = (data.items || []).filter(m => {
+        if (!['user','assistant'].includes(m.role) || !m.sessionKey || ['cron','api','unknown'].includes(m.channel)
+          || agent && m.agentId !== agent.id || person && String(m.userId) !== String(person.userId)) return false;
+        const key = JSON.stringify([m.sessionKey,m.agentId,String(m.userId),String(m.id)]); if (seen.has(key)) return false; seen.add(key); return true;
+      }).sort((a,b) => activityTime({lastActive:b.ts}) - activityTime({lastActive:a.ts}));
+      intentCards(parent,messages);
+      if (!messages.length) note(parent, 'В недавней выборке сообщений нет. Более старые беседы доступны во вкладке «Сессии».');
+      if (data.unavailable?.length) note(parent, 'Не удалось прочитать бесед: ' + data.unavailable.length + '. Это не означает, что сообщений не было.');
+      if (data.coverage?.namesAvailable === false) note(parent, 'Справочник имён недоступен; показаны известные имена из событий.');
+      const info = section(parent,'О данных',body => {
+        note(body,'Показаны недавние сохранённые сообщения, не весь внешний чат. Интенты сгруппированы предварительно: уточнение может относиться к прежнему обращению.');
+        note(body,'«Агент ответил» не означает, что задача выполнена или результат принят. «До ответа» — время между сохранёнными сообщениями, включая ожидание, не время вычисления. Число сообщений — не число ходов модели.');
+        note(body,'Для проверки результата и извлечения уроков откройте обращение и выберите его для разбора. Без источников выводы не добавляются.');
+      }); info.classList.add('data-note');
+    });
+  }
+  function conversations(parent) {
+
+
+    const list = node('div', ''), controls = node('div', '', 'row'); parent.append(list, controls); const seen = new Set(), cursors = new Set(), collected = []; let total = 0;
+    function next(cursor) {
+      controls.replaceChildren(); const args = { ...base(), ...(person ? { user_id:String(person.userId) } : {}), ...(cursor ? { cursor } : {}), limit:company.runtime !== 'core' && agent ? 500 : 50 };
+      void load(controls, () => call('conversations_list', args), data => {
+        const rows = (data.conversations || []).filter(c => !['cron','api'].includes(c.channel));
+        rows.forEach(c => {
+          if (agent && c.agentId !== undefined && c.agentId !== agent.id || person && String(c.userId) !== String(person.userId) || seen.has(c.sessionKey)) return;
+          seen.add(c.sessionKey); total++; collected.push(c);
+        });
+        list.replaceChildren();
+        renderConversationList(list,collected);
+        
+        if (data.nextCursor && !cursors.has(data.nextCursor)) { cursors.add(data.nextCursor); controls.append(button(rows.length ? 'Ещё беседы' : 'На этой странице нет совпадений · искать дальше', () => next(data.nextCursor), 'quiet')); }
+        else if (data.nextCursor) note(controls, 'Сервер повторил курсор. Чтение остановлено; это не конец истории.');
+
+      });
+    } next();
+  }
+  function history(parent, c) {
+    parent.append(button('← Беседы', () => { conversation = null; transition(); renderTab(); }, 'quiet'));
+    note(parent, 'Сохранённая история, не полный активный контекст модели. Публикация и поручение — отдельные действия в диалоге с Operator.');
+    const selectionLabel = node('p','','muted'); parent.append(selectionLabel);
+    const updateSelection = () => { selectionLabel.textContent = selectedMessageIds.length
+      ? 'Для разбора выбрано сообщений: ' + selectedMessageIds.length + '. Нажмите «Работать в этом контексте»; затем задайте вопрос в чате.'
+      : 'Можно выбрать отдельные сообщения или закрепить всю сессию. Это не отправит ничего пользователю.'; };
+    updateSelection();
+    const messages = node('div', ''), controls = node('div', '', 'row'); parent.append(controls, messages); const seen = new Set(), cursors = new Set();
+    function older(cursor) {
+      controls.replaceChildren();
+      void load(controls, () => call('conversation_read', { instance_id:company.instanceId, session_key:c.sessionKey, limit:30, ...(cursor ? { before_message_id:cursor } : {}) }), data => {
+        if (!cursor) conversation = {...conversation, capturedAt:data.capturedAt, contextRevision:data.contextRevision, revision:data.revision, sourceInputId:data.sourceInputId};
+        const group = node('div', '');
+        (data.messages || []).forEach(m => {
+          if (m.id !== undefined && seen.has(m.id)) return; if (m.id !== undefined) seen.add(m.id);
+          const box = node('div', '', 'message');
+          const who = m.role === 'user' ? userName(person) : m.role === 'assistant' ? agentName(agent) : 'Системная запись';
+          box.append(node('strong',who + ' · ' + dateLabel(m.ts || m.created_at))); renderMessageContent(box, typeof m.content === 'string' ? m.content : m.text, m.role); box.dataset.messageId=String(m.id);
+          if (m.id !== undefined && m.id !== null) {
+            const label = node('label',''), check = document.createElement('input'); check.type = 'checkbox';
+            check.checked = selectedMessageIds.some(id=>String(id) === String(m.id));
+            check.addEventListener('change',()=>{ selectedMessageIds = selectedMessageIds.filter(id=>String(id) !== String(m.id)); if(check.checked) selectedMessageIds.push(m.id); updateSelection(); });
+            label.append(check,document.createTextNode(' Включить в разбор')); box.append(label);
+          }
+          group.append(box);
+        }); messages.prepend(group);
+        if (data.nextMessageCursor && !cursors.has(data.nextMessageCursor)) { cursors.add(data.nextMessageCursor); controls.append(button('Ранее', () => older(data.nextMessageCursor), 'quiet')); }
+        if (data.truncated) note(controls, 'История показана частично.');
+        if (data.note) note(controls, data.note);
+        if (data.nextMessageCursor && cursors.has(data.nextMessageCursor) && !controls.querySelector('button')) note(controls,'Сервер повторил курсор. Чтение остановлено; это не конец истории.');
+      });
+    } older();
+  }
+  function state() {
+    if (!configuration) configuration = call('agent_configuration_read', base()).then(data => data.state).catch(error => { configuration = null; throw error; }); return configuration;
+  }
+  function readDocument(parent, target, label) {
+    section(parent, label || target.path, body => void load(body, () => call('agent_document_read', { ...base(), target }), data => {
+      const d = data.document; note(body, d.exists ? 'Источник: ' + target.scope + ' · revision ' + d.revision : 'Файл отсутствует'); body.append(node('pre', d.content || (d.exists ? '[Пустой файл]' : '[Нет источника]')));
+      const ref = { agent_id:agent.id, target:d.target, revision:d.revision }; if (!sourceRefs.some(r => JSON.stringify(r) === JSON.stringify(ref))) sourceRefs.push(ref);
+    }));
+  }
+  function inventory(parent, scopeName, label) {
+    const selection = { scope:scopeName, ...(scopeName === 'user_context' ? { userId:Number(person.userId) } : {}), limit:100 };
+    section(parent, label, body => void load(body, () => call('agent_documents_list', { ...base(), selection }), data => {
+      (data.documents || []).forEach(d => readDocument(body, d.target, d.target.path + ' · ' + d.bytes + ' B'));
+      note(body, data.truncated ? 'Серверная выборка ограничена; не показано: ' + data.omitted + '. Полнота не доказана.' : (data.documents?.length || 0) + ' документов в этом scope.');
+    }));
+  }
+  function staffSource(tool, args, revision) {
+    const ref = { tool, arguments:args, revision };
+    if (!sourceRefs.some(item => JSON.stringify(item) === JSON.stringify(ref))) sourceRefs.push(ref);
+  }
+  function staffContext(parent) {
+    void load(parent, () => call('agent_inspect', base()), data => {
+      (data.contexts || []).forEach(target => section(parent, target.label || target.id, body => {
+        note(body, target.writable ? 'Рабочий контекст · можно подготовить изменение в чате' : 'Отдельный владелец записи · здесь чтение');
+        void load(body, () => call('context_read', { instance_id:company.instanceId, target_id:target.id }), result => {
+          note(body, 'Версия: ' + result.revision); body.append(node('pre', result.content));
+          staffSource('context_read', { instance_id:company.instanceId, target_id:target.id }, result.revision);
+        });
+      }));
+      section(parent, 'Документы сотрудника', body => {
+        note(body, 'Читаются по выбору. Отсутствующий файл не означает пустую память; это не полный собранный промпт.');
+        (data.documents || []).forEach(doc => section(body, doc.name, child => void load(child, () => call('staff_document_read', { ...base(), name:doc.name }), result => {
+          note(child, result.status === 'ready' ? 'Версия: ' + result.revision : 'Файл не настроен');
+          if (result.content !== undefined) { child.append(node('pre', result.content)); staffSource('staff_document_read', { ...base(), name:doc.name }, result.revision); }
+        })));
+      });
+      section(parent, 'Контекст участников', body => {
+        (data.people || []).forEach(member => section(body, member.displayName || member.memberId, child => {
+          note(child, 'Участник: ' + member.memberId + ' · назначен этому сотруднику');
+          section(child, 'Общий контекст участника', target => void load(target, () => call('context_read', { instance_id:company.instanceId, target_id:member.contextTarget }), result => target.append(node('pre', result.content))));
+          if (member.pairContextAvailable) section(child, 'Контекст с этим сотрудником', target => void load(target, () => call('context_read', { ...base(), target_id:member.contextTarget }), result => target.append(node('pre', result.content))));
+        }));
+        if (!data.people?.length) note(body, 'Назначенных участников в этом срезе нет.');
+      });
+    });
+  }
+  function staffSurfaces(parent) {
+    if (!agent || !conversation) { note(parent, 'Выберите сотрудника и конкретную беседу в разделе «Сессии», затем откройте её рабочие экраны.'); return; }
+    note(parent, 'Беседа: ' + (conversation.title || conversation.sessionKey));
+    note(parent, 'Рабочие экраны беседы. Для изменения обсудите точную правку с Operator; общий Dashboard — отдельный контекст компании.');
+    void load(parent, () => call('staff_workspace_read', { ...base(), session_key:conversation.sessionKey }), data => {
+      note(parent, 'Версия: ' + data.revision + ' · экранов: ' + data.widgets.length);
+      data.widgets.forEach(widget => section(parent, widget.title, body => {
+        note(body, 'ID: ' + widget.name + ' · вкладка: ' + widget.tabId);
+        section(body, 'HTML текущего экрана', source => void load(source, () => call('staff_workspace_read', { ...base(), session_key:conversation.sessionKey, name:widget.name }), result => { source.append(node('pre', result.source)); staffSource('staff_workspace_read', { ...base(), session_key:conversation.sessionKey, name:widget.name }, result.revision); }));
+      }));
+      if (!data.widgets.length) note(parent, 'В этой беседе рабочие экраны ещё не созданы.');
+    });
+  }
+  function contextView(parent) {
+    note(parent, 'Костюм читается по разделам. Доступно ≠ прочитано агентом. Просмотр здесь не загружает всё в модель оператора. Значения ключей не запрашиваются.');
+    if (!agent) { note(parent, 'Для костюма выберите агента. Обзор компании не объединяет пользовательские сессии.'); agents.forEach(a => parent.append(agentCard(a, () => workspace(a, null, 'context')))); return; }
+    if (company.runtime !== 'core') { staffContext(parent); return; }
+    section(parent, '1 · Identity и инструкции', body => {
+      void load(body, state, s => { json(body, s.identity); note(body, 'Для настроенного провайдера: ' + (s.costume?.effectiveFile || 'неизвестно') + '. Это не доказательство доставки конкретному turn.'); note(body, s.costume?.divergent ? 'AGENTS.md и CLAUDE.md различаются. Причину нужно проверить, автоматически не синхронизируем.' : 'Совпадение файлов: ' + (s.costume?.divergent === false ? 'подтверждено снимком' : 'не проверено')); });
+      readDocument(body, { scope:'costume', path:'AGENTS.md' }); readDocument(body, { scope:'costume', path:'CLAUDE.md' });
+    });
+    section(parent, '2 · Знания и память', body => {
+      inventory(body, 'company_context', 'Общие знания компании'); inventory(body, 'agent_context', 'Контекст агента'); note(body, 'Каноническая личная память, WORK_STATE и полный журнал не имеют отдельной ручки чтения в этом контракте. Это пробел наблюдаемости, не отсутствие памяти у агента.');
+    });
+    section(parent, '3 · Скиллы', body => {
+      void load(body, state, s => { json(body, { assigned:s.skills.assigned, disabled:s.skills.disabled, available:s.skills.available }); note(body, 'Назначены, выключены и доступны — разные состояния. Доступность не доказывает использование в текущем ходе.'); });
+      inventory(body, 'agent_skill', 'Локальные SKILL.md'); note(body, 'Тела глобальных навыков и вложенные ресурсы, не перечисленные native inventory, этим чтением не раскрываются.');
+    });
+    section(parent, '4 · Коннекторы', body => void load(body, state, s => {
+      json(body, s.connectors); note(body, 'assigned — назначения; scope — область подключения. present_unverified не означает авторизацию. liveAuthentication=not_checked — живой тест не проводился.');
+      if (person) note(body, 'Персональные credentials проверяются отдельным connector_credential_read с точным agent/user; без значений ключей.');
+    }));
+    section(parent, '5 · Инструменты, MCP и браузер', body => {
+      if (agent.tools !== undefined) json(body, { configuredTools:agent.tools }); note(body, 'Полный runtime tools/MCP, готовность Browser/Edge и фактическое использование инструментов не доказаны этим API. Нужны точные traces; отсутствие проекции не ограничивает агента.');
+    });
+    section(parent, '6 · Провайдер и параметры', body => void load(body, state, s => { json(body, { provider:s.provider, model:s.model, settingsSupport:s.settingsSupport }); note(body, 'Конфигурация агента; беседа может иметь свой route/model. Пул не доказывает запас лимитов.'); }));
+    section(parent, '7 · Пользователь, беседа и незавершённое', body => {
+      if (!person) { note(body, 'Выберите пользователя слева. Личные контексты разных людей не смешиваются.'); return; }
+      note(body, userName(person) + ' · ID ' + person.userId); inventory(body, 'user_context', 'Документы пользователя');
+      section(body, 'Напоминания', child => void load(child, () => call('reminders_read', { ...base(), user_id:String(person.userId) }), data => { json(child, data.reminders); note(child, 'Настроено ≠ выполнено и доставлено.'); }));
+      if (conversation) section(body, 'Контекст выбранной беседы', child => void load(child, () => call('conversation_read', { instance_id:company.instanceId, session_key:conversation.sessionKey, limit:10 }), data => {
+        if (data.context) { json(child, data.context); note(child, 'Native source snapshot, не полный скрытый prompt/SDK-контекст. Проверяйте missing/truncated.'); } else note(child, 'Доступна только legacy история; source snapshot недоступен.');
+      }));
+      else note(body, 'Выберите беседу в «Диалогах», затем вернитесь для source snapshot.'); note(body, 'Отдельный полный реестр файлов, compact и pending effects этим интерфейсом не заявляется.');
+    });
+  }
+  function settings(parent) {
+    if (!agent) { note(parent, 'Выберите точного агента. Массовых изменений здесь нет.'); agents.forEach(a => parent.append(agentCard(a, () => workspace(a, null, 'settings')))); return; }
+    note(parent, 'Настройки всего агента, не только выбранного пользователя. Изменения — в диалоге: точный diff → подтверждение → receipt. Этот экран только читает.');
+    if (company.runtime !== 'core') { void load(parent, () => call('agent_inspect', base()), data => { json(parent, data.agent); note(parent, 'Настроенная роль, модель и навыки. Изменения поставляемой конфигурации проходят через релиз Штата. Рабочий контекст и экраны доступны в соседних разделах.'); }); return; }
+    void load(parent, state, s => json(parent, { agentId:s.agentId, revision:s.revision, busy:s.busy, identity:s.identity, provider:s.provider, model:s.model, settingsSupport:s.settingsSupport, supportedChanges:s.supportedChanges }));
+  }
+  el('use-context').addEventListener('click',()=>selectContext(true));
+  el('clear-context').addEventListener('click',()=>selectContext(true,{instance_id:null}));
+  el('refresh').disabled=false;
+  el('refresh').textContent='Компании ↗';
+  el('refresh').addEventListener('click',()=>{company=agent=person=null;pinnedScope=null;peopleByAgent.clear();transition();detail.replaceChildren();void load(detail,()=>call('fleet_list',{}),renderFleet)});
+  ready=true;void load(detail,()=>call('fleet_list',{}),renderFleet);
+  el('installation').textContent='Снимок · '+new Date(capturedAt).toLocaleString('ru-RU')+' · данные читаются при открытии раздела; выборка может быть неполной';
+  status.textContent='';
+})();
+</script></body></html>

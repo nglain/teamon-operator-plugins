@@ -77,10 +77,11 @@ export async function runInstallation({stage,signal,run=command,env=process.env,
     if(!catalog)fail('catalog_missing','Каталог не появился после команды.');
     const manifest=parse(await readFile(path.join(catalog.root,'plugins',MARKET,'.codex-plugin','plugin.json'),'utf8'));
     target=manifest.version;
-    if(manifest.name!==MARKET||!versionOK(target)||compare(target,'0.2.11')<0)fail('release_contract','В каталоге нет поддерживаемой chat-only поставки.');
+    if(manifest.name!==MARKET||!versionOK(target)||compare(target,'0.2.12')<0)fail('release_contract','В каталоге ещё нет версии с новым пультом. Обновите каталог TeamON.');
   });
   await stage(2,async()=>{
     installed=await listing();
+    if(installed&&!installed.enabled)fail('plugin_disabled','Operator выключен пользователем. Включите его явно перед обновлением; настройки и вход сохранены.');
     if(installed&&compare(installed.version,target)>0)fail('downgrade','Установлена более новая версия. Автоматического отката не будет.');
     if(!installed||installed.version!==target) {
       // CLI owns installation/config writes. Never patch cache/config or remove old state here.

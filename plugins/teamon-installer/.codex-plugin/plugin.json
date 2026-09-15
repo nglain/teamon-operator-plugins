@@ -1,6 +1,6 @@
 {
   "name": "teamon-installer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Live in-chat installer for TeamON Operator. No company access.",
   "author": {
     "name": "TeamON"
