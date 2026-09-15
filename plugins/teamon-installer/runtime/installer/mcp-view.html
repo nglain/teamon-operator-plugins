@@ -125,7 +125,7 @@ main[data-state=disconnected] #phase,main[data-state=failed] #phase,main[data-st
     if(!canMessage){$('message').textContent='Этот чат не поддерживает отправку из карточки. Выберите @TeamON Operator и отправьте «Помоги войти». Установка завершена.';return;}
     $('begin').textContent='Отправляем…';
     $('message').textContent='Передаём запрос в этот чат. Если Codex открыл подтверждение, подтвердите отправку.';
-    try{const result=await rpc('ui/message',{role:'user',content:[{type:'text',text:'Установка завершена. Подключи @TeamON Operator в этом чате, проверь вход и помоги войти в TeamON при необходимости. После подтверждения входа вызови workspace_open и открой рабочий пульт, затем помоги выбрать компанию и дай короткий гайд. Не переустанавливай исправный плагин и не открывай админку Master вместо пульта.'}]},60000);
+    try{const result=await rpc('ui/message',{role:'user',content:[{type:'text',text:'@TeamON Operator Установка завершена. Проверь вход и помоги войти в TeamON при необходимости. После подтверждения входа вызови workspace_open и открой рабочий пульт, затем помоги выбрать компанию и дай короткий гайд. Не переустанавливай исправный плагин и не открывай админку Master вместо пульта.'}]},60000);
       if(!result||typeof result!=='object'||result.isError===true)throw new Error('unconfirmed');
       $('begin').textContent='Запрос передан';
       $('message').textContent='Codex принял запрос. Ответ появится в чате; если он занят, запрос ожидает в очереди. Если потребуется, выберите @TeamON Operator в поле сообщения.';

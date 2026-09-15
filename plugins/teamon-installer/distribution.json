@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
   "name": "teamon-installer",
-  "version": "0.1.1",
-  "source": "04f6f2c87bcf4c28e2133ca190c506d47c2e1f46",
+  "version": "0.1.2",
+  "source": "68b33b359b7c2d8a3c4d9fa8c10d0fd6f92629c2",
   "dirty": false,
   "releaseBuild": true,
   "files": {
-    ".codex-plugin/plugin.json": "47bf3eb9e7a02e2b8437c52607fd902661a4d7ae387d8366ad088d9ac73a949c",
+    ".codex-plugin/plugin.json": "f2188e303388c9e2254afe0969d771140dbab244213e55a0fa2963b105bb5ea8",
     ".mcp.json": "6c576b6364d1df9ffd638751cd5c9e389bde04d563b45b111c45e9c9378c842e",
     "README.md": "57ca35295c12a002a1299b2ddac713821da11bdac65ed7b87c6f907ed429c43f",
     "mcp.json": "5f0ae5d0ff1a2a9263693669e315285f7935c44ad36c8f55cc9b5b0b43ca03f7",
-    "plugin.json": "6de58ac846ad18ce9c9bd17aba62801307fb1e1344969bd164837414f0b8d984",
+    "plugin.json": "0937f7f15b9a06f95bcc0673087b1ea35ea2025d37164e99d1393d6ca0368a2b",
     "runtime/installer/mcp-job.mjs": "cfd80cfde202be5a3720bded978a6ba495ff85bc3b0bb29d76859c763a5a1ace",
-    "runtime/installer/mcp-server.mjs": "d2bc17adda7a3aa44319286ff33b0cf47f8c68f8a3046b10f04a34e4729a62c8",
-    "runtime/installer/mcp-view.html": "28ae25da171167779adf65b5d728d45d3323338c18817997e6ef2a7db9db15d8",
+    "runtime/installer/mcp-server.mjs": "47532700907adf55ecd97d1d3daa60a05093713a234e3ade6f15f129c9296cf7",
+    "runtime/installer/mcp-view.html": "c9dd86327bdd090b4c6b2c2b02b9c37e88e5079f71709f46586d3548e4427ad2",
     "runtime/installer/runner.mjs": "1af43b23de5af9723b3032a522ef0f099f73f06f3de49ead63fe0572c562cc02",
     "runtime/node_modules/.bin/node-which": {
       "symlink": "../which/bin/node-which"
