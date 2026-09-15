@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "teamon-installer",
-  "version": "0.1.2",
-  "description": "Live in-chat installer for TeamON Operator. No company access.",
+  "version": "0.1.3",
+  "description": "Text-only installer for TeamON Operator. No company access.",
   "author": {
     "name": "TeamON"
   },
@@ -10,13 +10,13 @@
     "com.openai": {
       "interface": {
         "displayName": "TeamON Installer",
-        "shortDescription": "Install TeamON Operator with live progress.",
-        "longDescription": "A separate installation screen. Starts only after you click Install; never reads company credentials.",
+        "shortDescription": "Install TeamON Operator in chat.",
+        "longDescription": "Installs on request and reports confirmed stages as text. No embedded UI or company credentials.",
         "developerName": "TeamON",
         "category": "Productivity",
         "capabilities": [],
         "defaultPrompt": [
-          "Покажи экран установки TeamON Operator через installer_open. Пока не запускай установку."
+          "Продолжи установку Operator и показывай подтверждённые этапы текстом."
         ]
       }
     }
