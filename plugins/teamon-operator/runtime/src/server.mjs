@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import packageInfo from "../package.json" with { type: "json" };
+import {registerRuntimeInfo} from '../runtime-info.mjs';
 import { openWorkspaceServer, WORKSPACE_READS } from './workspace-server.mjs';
 import { WorkJournal, journalCall, caseInput, caseUpdate, observationInput, noteInput } from "./work-journal.mjs";
 import { OperatorService } from "./operator-service.mjs";
@@ -105,6 +106,7 @@ export function createOperatorMcpServer(config, dependencies, {initialState} = {
     "Operator work journal: journal_case_open creates a local durable case; pass case_id on related scoped tools. Calls record automatically even without a case; operation/consultation continuation uses exact recorded IDs when unambiguous. journal_read returns paginated cases/timeline or descriptive review groups. journal_observation_write stores versioned assistant-attributed judgments, not verified human acceptance. journal_note is an external report, not a native execution receipt. Read current revisions before journal_case_update; preserve unknown outcomes. Local storage is not company synchronization; no complete native traces or autonomous-quality score are promised."
   ].join("\n\n");
   const server = new McpServer({ name: "teamon-operator", version: packageInfo.version }, { instructions });
+  registerRuntimeInfo(server, {toolName:'operator_runtime_info', serverName:'teamon-operator', version:packageInfo.version});
   let workspace;
   const workspaceReaders = new Map();
   const nativeRegister = server.registerTool.bind(server);

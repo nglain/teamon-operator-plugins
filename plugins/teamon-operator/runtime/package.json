@@ -1,12 +1,13 @@
 {
   "name": "@teamon/operator-mcp",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "private": true,
   "type": "module",
   "bin": {
     "teamon-operator": "./src/cli.mjs"
   },
   "files": [
+    "runtime-info.mjs",
     "src/",
     "README.md",
     "docs/",

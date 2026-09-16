@@ -1,6 +1,6 @@
 {
   "name": "teamon-installer",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Text-only installer for TeamON Operator. No company access.",
   "author": {
     "name": "TeamON"
