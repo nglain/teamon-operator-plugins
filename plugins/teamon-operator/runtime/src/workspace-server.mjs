@@ -6,7 +6,7 @@ import { readFile } from 'node:fs/promises';
 export const WORKSPACE_READS = new Set(['fleet_list','instance_inspect','agent_inspect',
   'activity_read','conversations_list','conversation_read','context_read',
   'agent_configuration_read','agent_documents_list','agent_document_read',
-  'automations_list','reminders_read','journal_read']);
+  'automations_list','operator_reminders_read','journal_read']);
 
 export async function openWorkspaceServer(read) {
   const prefix = '/'+randomBytes(32).toString('hex')+'/';

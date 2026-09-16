@@ -5,7 +5,7 @@ The source folder is a packaging template, not an installable runtime.
 
 Recipient flow: guide -> helper installation -> same-thread draft with native
 @TeamON Installer -> human submission -> ASCII status -> same-thread draft with
-native @TeamON Operator -> human submission -> browser login -> workspace_open.
+native @TeamON Operator -> human submission -> browser login -> operator_workspace_open.
 The guide owns the macOS draft handoff; unavailable hosts use explicit native
 selection. The runtime never submits messages. Rediscover tools after submission.
 

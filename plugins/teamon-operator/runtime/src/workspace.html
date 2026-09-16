@@ -552,7 +552,7 @@ function parseMessageView(value, role = 'user') {
   function tasksView(parent) {
     currentTask=null;renderPinned();
     if(!agent||!person){note(parent,'Выберите агента и пользователя для чтения расписания.');return}
-    void load(parent,()=>call('reminders_read',base()),data=>{
+    void load(parent,()=>call('operator_reminders_read',base()),data=>{
       if(data.parseErrors?.length){note(parent,'Источник расписания содержит ошибки; проверьте его в чате.');return}
       snapshot.tasks={captured_at:new Date().toISOString()};
       renderTasks(parent,{agent_id:agent.id,users:[{user_id:person.userId,reminders:data.reminders}]});
@@ -1122,7 +1122,7 @@ function parseMessageView(value, role = 'user') {
     section(parent, '7 · Пользователь, беседа и незавершённое', body => {
       if (!person) { note(body, 'Выберите пользователя слева. Личные контексты разных людей не смешиваются.'); return; }
       note(body, userName(person) + ' · ID ' + person.userId); inventory(body, 'user_context', 'Документы пользователя');
-      section(body, 'Напоминания', child => void load(child, () => call('reminders_read', { ...base(), user_id:String(person.userId) }), data => { json(child, data.reminders); note(child, 'Настроено ≠ выполнено и доставлено.'); }));
+      section(body, 'Напоминания', child => void load(child, () => call('operator_reminders_read', { ...base(), user_id:String(person.userId) }), data => { json(child, data.reminders); note(child, 'Настроено ≠ выполнено и доставлено.'); }));
       if (conversation) section(body, 'Контекст выбранной беседы', child => void load(child, () => call('conversation_read', { instance_id:company.instanceId, session_key:conversation.sessionKey, limit:10 }), data => {
         if (data.context) { json(child, data.context); note(child, 'Native source snapshot, не полный скрытый prompt/SDK-контекст. Проверяйте missing/truncated.'); } else note(child, 'Доступна только legacy история; source snapshot недоступен.');
       }));
