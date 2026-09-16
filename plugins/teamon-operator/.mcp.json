@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "teamon-operator": {
+    "teamon-operator-runtime": {
       "type": "stdio",
       "command": "node",
       "args": ["${PLUGIN_ROOT}/scripts/launch.mjs", "serve"]

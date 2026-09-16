@@ -2,6 +2,7 @@ import http from 'node:http';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 import { MASTER_ORIGIN, accountPath, accountJson, saveAccountSession } from './account-session.mjs';
+import { beginAccountDevice } from './account-device.mjs';
 
 const opaque=()=>randomBytes(32).toString('base64url');
 const same=(a,b)=>typeof a==='string' && /^[A-Za-z0-9_-]{43}$/.test(a) && a.length===b.length && timingSafeEqual(Buffer.from(a),Buffer.from(b));
@@ -53,7 +54,8 @@ export async function startAccountLogin(configPath,{fetchImpl=fetch,save=saveAcc
   return {url:url.href,close};
 }
 
-export function registerAccountLogin(server,configPath,dependencies) {
+// Retained only for explicit compatibility tests; new MCP registrations use device login.
+export function registerLegacyAccountLogin(server,configPath,dependencies) {
   let pending, starting, closed=false;
   server.registerTool('account_login_open',{
     description:'Start personal TeamON Operator login in the browser when the person asks to connect or sign in. Returns a Master authorization URL, never a password or credential. After browser consent call installation_status with refresh_account:true in this same MCP, then work with the selected company. Do not list companies automatically. Switching an established identity or manual mode requires reconnect; manual connections are not deleted.',
@@ -76,4 +78,17 @@ export function registerAccountLogin(server,configPath,dependencies) {
   });
   const close=server.close.bind(server);
   server.close=async()=>{closed=true;await starting?.catch(()=>{});await pending?.close();await close();};
+}
+
+export function registerAccountLogin(server,configPath,dependencies) {
+  let starting;
+  server.registerTool('account_login_open',{
+    description:'Start or resume personal TeamON device login on explicit request. Show the returned comparison code and open the HTTPS Master URL. No localhost callback. After browser approval call installation_status with refresh_account:true; do not claim login until confirmed. Passwords and device secrets must never enter chat.',
+    inputSchema:{},outputSchema:z.object({url:z.string(),message:z.string(),userCode:z.string(),expiresAt:z.string()}),
+    annotations:{readOnlyHint:false,destructiveHint:false,openWorldHint:true}
+  },async()=>{
+    starting ||= beginAccountDevice(configPath,dependencies).finally(()=>{starting=undefined;});
+    const value=await starting;
+    return {content:[{type:'text',text:JSON.stringify(value)}],structuredContent:value};
+  });
 }

@@ -10,6 +10,7 @@ import path from 'node:path';
 import { lstat } from 'node:fs/promises';
 import { accountPath } from './account-session.mjs';
 import { registerAccountLogin } from './account-login.mjs';
+import { finishAccountDevice } from './account-device.mjs';
 import { registerResourceLogin } from './resource-login.mjs';
 import { readAccountConfig } from './account-config.mjs';
 import { coreAgentIdSchema, coreChangeSchema, coreDocumentTargetSchema, coreDocumentInventorySchema, coreReminderRevisionSchema, coreCredentialSelectionSchema, coreRevisionSchema } from "./adapters/core-changes.mjs";
@@ -138,10 +139,16 @@ export function createOperatorMcpServer(config, dependencies, {initialState} = {
     message:config.instances.length ? 'Вход проверен. Продолжайте с выбранной компанией в чате.' : 'Вход проверен. Компании пока не назначены: попросите администратора Master назначить доступ.'});
   let installation = {...installationStatus(initialState || 'configured',config.file), ...(config.account && !initialState ? accountSummary() : {})};
   registerInstallationStatus(server, async ({refresh_account}) => {
-    if (refresh_account) await refreshConnection();
+    if (refresh_account) {
+      if(config.file) {
+        const pending=await finishAccountDevice(config.file,dependencies?.accountDevice);
+        if(pending && pending.state!=='account_token_received') return {...installationStatus(pending.state,config.file),...pending};
+      }
+      await refreshConnection();
+    }
     return installation;
   });
-  if(config.file) registerAccountLogin(server,config.file);
+  if(config.file) registerAccountLogin(server,config.file,dependencies?.accountDevice);
   if(hasCore) registerResourceLogin(server,()=>service,dependencies?.resourceLogin);
   const closeServer = server.close.bind(server);
   server.close = async () => { if(workspace)await (await workspace).close(); for(const journal of journals.values())journal.close(); await service.close(); await closeServer(); };
@@ -158,7 +165,7 @@ export function createOperatorMcpServer(config, dependencies, {initialState} = {
         await previous.close();
       } else service.config = updated;
       config = updated;
-      installation = {...installationStatus('configured',config.file),...accountSummary()};
+      installation = {...installationStatus('configured',config.file),...accountSummary(),liveChecked:true};
     } catch (error) {
       service.config = {...service.config,instances:[]};
       const state = ['account_changed','account_login_required','not_configured'].includes(error.message) ? error.message : 'account_service_unavailable';

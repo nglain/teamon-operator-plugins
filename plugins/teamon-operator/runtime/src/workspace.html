@@ -172,8 +172,10 @@ details:not(.intent){margin:8px 0}details:not(.intent)>summary{cursor:pointer;co
   let viewRevision=0, viewSignature='', viewUpdatedAt=null;
   async function request(method, params) {
     if(method!=='tools/call')throw Error('Unsupported operation');
-    const response=await fetch(new URL('read',location.href),{method:'POST',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify(params)});
+    let response;
+    try { response=await fetch(new URL('read',location.href),{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(params),signal:AbortSignal.timeout(30000)}); }
+    catch { throw Error('Нет связи с локальным пультом. В чате попросите «Открой пульт» и используйте новую ссылку. Переустановка и повторный вход не требуются только из-за этой ошибки.'); }
     const value=await response.json();
     if(!response.ok){
       const messages={instance_login_required:'Нужно подтвердить подключение этой компании. Напишите в чате: «Подключи выбранную компанию».',account_login_required:'Нужно снова войти в TeamON через чат.',account_changed:'Аккаунт изменился. Переподключите Operator, не продолжайте в контексте прежнего пользователя.',account_service_unavailable:'Сервис авторизации временно недоступен. Повторите чтение позже.'};

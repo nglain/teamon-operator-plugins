@@ -19,7 +19,7 @@ export function installationStatus(state = 'configured', configPath) {
 }
 export function registerInstallationStatus(server, status) {
   server.registerTool('installation_status', {
-    description:'Read the running package version and last observed connection state. Default is local, with no network or file writes. Set refresh_account:true explicitly after browser login or to recheck access: refresh the existing Master identity/assignments without returning a company list or probing companies. Does not start login, grant access or change agents. configured is not a company health check.',
+    description:'Read the running package version and last observed connection state. Default is local, with no network or file writes. Set refresh_account:true explicitly after browser login or to recheck access: collect an approved pending device login (saving its private session), then refresh Master identity/assignments without returning companies or probing them. Does not start login, grant rights or change agents. Pending means browser approval is still needed; respect retryAfter. configured is not a company health check.',
     inputSchema:{refresh_account:z.boolean().optional()},outputSchema:z.looseObject({version:z.string(),state:z.string()}),
     annotations:{readOnlyHint:true,openWorldHint:true}
   }, async (input) => {

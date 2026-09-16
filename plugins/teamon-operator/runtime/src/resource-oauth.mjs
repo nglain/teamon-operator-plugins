@@ -6,6 +6,8 @@ import {randomBytes,timingSafeEqual} from 'node:crypto';
 import {discoverOAuthServerInfo,startAuthorization,exchangeAuthorization,refreshAuthorization} from '@modelcontextprotocol/client';
 import {readResourceSession,saveResourceSession,invalidateResourceSession} from './resource-session.mjs';
 import {adapterError} from './compatibility.mjs';
+import {beginAccountDevice,finishAccountDevice} from './account-device.mjs';
+import {MASTER_ORIGIN} from './account-session.mjs';
 
 const loginRequired = () => adapterError('authentication_failed','instance_login_required');
 const clientInformation = {client_id:'teamon-operator'};
@@ -54,6 +56,10 @@ function sessionFrom(binding,tokens) {
     ...(tokens.refresh_token ? {refreshToken:tokens.refresh_token} : {})};
 }
 export async function resourceCredential(binding,{fetchImpl=fetch}={}) {
+  if(binding.issuer!==MASTER_ORIGIN)throw loginRequired();
+  const pending=await finishAccountDevice(binding.tokenFile,{fetchImpl,resource:binding.url,
+    saveResource:tokens=>saveResourceSession(binding,sessionFrom(binding,tokens))});
+  if(pending && pending.state!=='account_token_received')throw loginRequired();
   const current=await readResourceSession(binding,{allowExpired:true});
   if(Date.parse(current.expiresAt)>Date.now()+1000)return current;
   if(!current.refreshToken)throw loginRequired();
@@ -69,7 +75,13 @@ export async function resourceCredential(binding,{fetchImpl=fetch}={}) {
     const next=sessionFrom(binding,tokens);await saveResourceSession(binding,next);return next;
   } catch {throw loginRequired();} finally {await unlock();}
 }
-export async function startResourceLogin(binding,{fetchImpl=fetch,ttlMs=300_000,isCurrent=()=>true}={}) {
+export async function startResourceLogin(binding,{fetchImpl=fetch,isCurrent=()=>true}={}) {
+  if(binding.issuer!==MASTER_ORIGIN || !isCurrent())throw loginRequired();
+  const attempt=await beginAccountDevice(binding.tokenFile,{fetchImpl,resource:binding.url});
+  if(!isCurrent())throw loginRequired();
+  return {...attempt,close:async()=>{},get closed(){return Date.parse(attempt.expiresAt)<=Date.now();}};
+}
+export async function startLegacyResourceLogin(binding,{fetchImpl=fetch,ttlMs=300_000,isCurrent=()=>true}={}) {
   const unlock=await lock(binding);
   let server,timer,callback,flow,busy=false,closed=false,closing;
   const state=randomBytes(32).toString('base64url');
