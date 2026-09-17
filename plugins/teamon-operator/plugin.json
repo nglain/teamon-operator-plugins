@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "teamon-operator",
-  "version": "0.2.15",
+  "version": "0.2.16",
   "description": "Инструменты оператора TeamON для работы с выбранной компанией в обычном чате. Браузерный вход и отдельно назначенный доступ.",
   "author": {
     "name": "TeamON"
