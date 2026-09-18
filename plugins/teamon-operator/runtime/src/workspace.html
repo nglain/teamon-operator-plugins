@@ -170,6 +170,7 @@ details:not(.intent){margin:8px 0}details:not(.intent)>summary{cursor:pointer;co
   const capturedAt=snapshot.capturedAt;
   const documentId=crypto.randomUUID();
   let viewRevision=0, viewSignature='', viewUpdatedAt=null;
+  let peopleCollapsedPreference=null;
   async function request(method, params) {
     if(method!=='tools/call')throw Error('Unsupported operation');
     let response;
@@ -260,6 +261,7 @@ details:not(.intent){margin:8px 0}details:not(.intent)>summary{cursor:pointer;co
   }
   function transition() { inspectionTarget=null;currentTask=null; generation++; configuration = null; sourceRefs = []; selectedMessageIds = []; activityData = null; showService = false; selectContext(); }
   async function call(name, args) {
+    const version=generation;
     const response = await request('tools/call', { name, arguments:args });
     if (response.isError) {
       const reason = (response.content || []).filter(item => item.type === 'text' && typeof item.text === 'string').map(item => item.text).join(' ').slice(0,1000);
@@ -267,10 +269,22 @@ details:not(.intent){margin:8px 0}details:not(.intent)>summary{cursor:pointer;co
     }
     if (!response.structuredContent || typeof response.structuredContent !== 'object') throw new Error('Неподдерживаемый ответ: ' + name);
     const data=response.structuredContent;
-    if(name==='activity_read' && args.instance_id===company?.instanceId && (!args.agent_id || args.agent_id===agent?.id)){
+    if(version===generation && name==='activity_read' && args.instance_id===company?.instanceId && (!args.agent_id || args.agent_id===agent?.id)){
       snapshot.activity={items:data.items||[]};snapshot.capturedAt=new Date().toISOString();
     }
     return data;
+  }
+  function workspaceError(error) {
+    const messages={
+      bridge_disconnected:'Связь с рабочим пространством прервана. Откройте пульт заново из текущего диалога.',
+      bridge_connection_failed:'Не удалось подключить пульт к диалогу. Откройте рабочее пространство заново.',
+      bridge_connection_timeout:'Рабочее пространство не ответило вовремя. Откройте пульт заново из текущего диалога.',
+      bridge_configuration_invalid:'Хост не передал корректное подключение пульта. Откройте его через сотрудника «Оператор», не отдельным файлом.',
+      read_timeout:'Чтение заняло слишком много времени. Можно повторить чтение; никаких изменений не выполнялось.',
+      read_limit_reached:'Слишком много одновременных чтений. Дождитесь загрузки и повторите.',
+      read_unavailable:'Не удалось прочитать выбранные данные. Проверьте доступ в диалоге с Оператором или повторите чтение.'
+    };
+    return messages[error?.message]||error?.message||'Не удалось прочитать данные. Повторите чтение.';
   }
   async function load(parent, action, render) {
     if (!parent.isConnected) return;
@@ -278,7 +292,7 @@ details:not(.intent){margin:8px 0}details:not(.intent)>summary{cursor:pointer;co
     try { const data = await action(); if (version !== generation || !parent.isConnected) return; busy.remove(); render(data); }
     catch (error) {
       if (version !== generation || !parent.isConnected) return;
-      busy.textContent = error.message;
+      busy.textContent = workspaceError(error);
       const retry = button('Повторить чтение', () => { busy.remove(); retry.remove(); void load(parent, action, render); }, 'quiet'); parent.append(retry);
     }
   }
@@ -299,9 +313,12 @@ details:not(.intent){margin:8px 0}details:not(.intent)>summary{cursor:pointer;co
     rail.setAttribute('aria-expanded',String(visible&&!collapsed));
     if(moveFocus)rail.focus({preventScroll:true});
   }
-  el('people-rail').addEventListener('click',()=>setPeopleCollapsed(!el('people').hidden));
+  el('people-rail').addEventListener('click',()=>{peopleCollapsedPreference=!el('people').hidden;setPeopleCollapsed(peopleCollapsedPreference)});
+  function preferredPeopleCollapsed() {
+    return peopleCollapsedPreference ?? (!!person || window.matchMedia('(max-width:760px)').matches);
+  }
   function chrome() {
-    el('layout').classList.toggle('workspace', page === 'workspace'); setPeopleCollapsed(!!person); el('use-context').hidden = !company;
+    el('layout').classList.toggle('workspace', page === 'workspace'); setPeopleCollapsed(preferredPeopleCollapsed()); el('use-context').hidden = !company;
     const crumbs = el('breadcrumb'); crumbs.replaceChildren(button('Компании', showCompanies, 'quiet'));
     if (company) crumbs.append(button(company.label || company.instanceId, () => inspect(company), 'quiet'));
     if (page === 'workspace') crumbs.append(node('span', agentName(agent) + (person ? ' / ' + userName(person) : ' / Все пользователи'), 'muted'));
@@ -313,7 +330,7 @@ details:not(.intent){margin:8px 0}details:not(.intent)>summary{cursor:pointer;co
     card.dataset.instance = c.instanceId; return card;
   }
   function renderFleet(payload) {
-    if (!Array.isArray(payload?.instances)) return; companies = payload.instances;
+    if (!Array.isArray(payload?.instances)) throw Error('Сервер не предоставил список компаний. Повторите чтение или проверьте подключение в чате.'); companies = payload.instances;
     installation = payload.installation || null;
     el('installation').textContent = 'Данные читаются через текущий Operator; открытые разделы — не полный архив.';
     el('identity').textContent = (payload.operator?.displayName || 'Оператор') + ' · подключений: ' + companies.length; showCompanies();
@@ -462,7 +479,7 @@ details:not(.intent){margin:8px 0}details:not(.intent)>summary{cursor:pointer;co
   function intentCards(parent, messages) {
     const episodes=activityEpisodes(messages);
     const toolbar=node('div','','list-toolbar');
-    const count=node('span',episodes.length+' обращений','list-count');
+    const count=node('span','Обращения · '+episodes.length,'list-count');
     const search=node('input','');search.type='search';search.placeholder='Найти обращение';search.setAttribute('aria-label',search.placeholder);
     toolbar.append(count,search);parent.append(toolbar);
     const list=node('div','','intent-list');parent.append(list);
@@ -523,7 +540,7 @@ details:not(.intent){margin:8px 0}details:not(.intent)>summary{cursor:pointer;co
     search.addEventListener('input',()=>{
       const q=search.value.trim().toLocaleLowerCase('ru');let found=0;
       for(const row of rendered){row.box.hidden=!row.text.includes(q);if(!row.box.hidden)found++}
-      count.textContent=q?found+' из '+episodes.length:episodes.length+' обращений';empty.hidden=found!==0;
+      count.textContent=q?found+' из '+episodes.length:'Обращения · '+episodes.length;empty.hidden=found!==0;
     });
   }
 // A display projection only. Original native messages remain untouched.
@@ -554,7 +571,7 @@ function parseMessageView(value, role = 'user') {
   function tasksView(parent) {
     currentTask=null;renderPinned();
     if(!agent||!person){note(parent,'Выберите агента и пользователя для чтения расписания.');return}
-    void load(parent,()=>call('operator_reminders_read',base()),data=>{
+    void load(parent,()=>call('operator_reminders_read',{...base(),user_id:String(person.userId)}),data=>{
       if(data.parseErrors?.length){note(parent,'Источник расписания содержит ошибки; проверьте его в чате.');return}
       snapshot.tasks={captured_at:new Date().toISOString()};
       renderTasks(parent,{agent_id:agent.id,users:[{user_id:person.userId,reminders:data.reminders}]});

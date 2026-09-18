@@ -1,6 +1,6 @@
 {
   "name": "@teamon/operator-mcp",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "private": true,
   "type": "module",
   "bin": {
@@ -15,6 +15,7 @@
   ],
   "scripts": {
     "check": "node --test test/*.test.mjs",
+    "build:workspace": "node scripts/build-embedded-workspace.mjs",
     "package:release": "node scripts/package-release.mjs",
     "package:plugin": "node scripts/package-plugin.mjs",
     "pilot:two-instance": "node test/live-two-instance-pilot.mjs",
