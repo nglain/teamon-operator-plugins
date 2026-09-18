@@ -18,11 +18,11 @@ Master **1.0.104** развёрнут: новый вход остаётся на
 Команды ниже — справка для ручной установки, не обязательные действия получателя.
 
 Нужны Codex с плагинами, Git и Node `>=24.14.1 <25` в PATH приложения.
-Предзаполнение проверено в macOS Codex для Installer. Windows пока не принят.
+Переход с установленного пакета проверен в macOS Codex. Windows пока не принят.
 
 ```sh
 codex plugin marketplace add https://github.com/nglain/teamon-operator-plugins.git
-codex plugin add teamon-installer@teamon-operator
+codex plugin add teamon-operator@teamon-operator
 ```
 
 Если наш каталог уже подключён на main, вместо первой команды:
